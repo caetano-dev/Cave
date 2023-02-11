@@ -23,7 +23,8 @@ connection.connect((err) => {
   console.log("Connected to the MySQL database.");
 });
 
-const filesDirectory = path.join(__dirname, "files");
+const filesDirectory = "./files";
+console.log(filesDirectory)
 
 // Use fileUpload middleware to handle file uploads
 app.use(fileUpload());
@@ -66,6 +67,33 @@ app.post("/upload", async (req, res) => {
     await connection.promise().query(sql, data);
     console.log("File information saved/updated in the database.");
     return res.send(status);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send(err);
+  }
+});
+
+app.delete("/delete", async (req, res) => {
+  const file = req.files.file;
+  const fileName = file.name;
+  const filePath = path.join(filesDirectory, fileName);
+  const tags = req.body.tags;
+  let sql, data, status;
+
+  try {
+    if (fs.readdirSync(filesDirectory).includes(fileName)) {
+      await fs.promises.unlink(filePath);
+      console.log(`File ${fileName} was deleted.`);
+      sql =
+        "DELETE FROM files WHERE filename = ?";
+      data = [fileName];
+      status = "File deleted";
+      await connection.promise().query(sql, data);
+      console.log("File deleted from the database.");
+      return res.send(status);
+    } else {
+      res.send("File does not exist.");
+    }
   } catch (err) {
     console.error(err);
     return res.status(500).send(err);
