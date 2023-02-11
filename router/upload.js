@@ -19,7 +19,7 @@ router.post("/upload", async (req, res) => {
 
   if(!ALLOWED_TYPES.includes(file.mimetype)){
     console.log(`file type ${file.mimetype} rejected.`);
-    return res.status(400).send("File type not allowed.")
+    return res.status(415).send("File type not allowed.")
   }
 
   let sql, data, status;
