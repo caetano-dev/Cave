@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS files (
   id INT AUTO_INCREMENT PRIMARY KEY,
   filename VARCHAR(255) NOT NULL,
   path VARCHAR(255) NOT NULL,
-  last_modified DATETIME NOT NULL,
+  last_modified VARCHAR(10) NOT NULl,
   tags VARCHAR(255)
 );

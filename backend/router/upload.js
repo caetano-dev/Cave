@@ -7,6 +7,15 @@ const filesDirectory = "./files";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "application/pdf", "text/plain"];
 
+const getCurrentDate = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = ('0' + (date.getMonth() + 1)).slice(-2)
+  const day = ('0' + date.getDate()).slice(-2)
+  return `${day}-${month}-${year}`
+}
+
+
 router.post("/upload", async (req, res) => {
   if (!req.files || Object.keys(req.files).length === 0) {
     return res.status(400).send("No files were uploaded.");
@@ -30,12 +39,12 @@ router.post("/upload", async (req, res) => {
       console.log(`Old file ${fileName} was deleted.`);
       sql =
         "UPDATE files SET path = ?, last_modified = ?, tags = ? WHERE filename = ?";
-      data = [filePath, new Date(), tags, fileName];
-      status = "File updated";
+      data = [filePath, getCurrentDate(), tags, fileName];
+      status = "File updated!";
     } else {
       sql =
         "INSERT INTO files (filename, path, last_modified, tags) VALUES (?, ?, ?, ?)";
-      data = [fileName, filePath, new Date(), tags];
+      data = [fileName, filePath, getCurrentDate(), tags];
       status = "File uploaded!";
     }
 

@@ -4,10 +4,9 @@ const router = express.Router();
 
 router.get("/files", async (req, res) => {
   try {
-    const [rows] = await connection
+    const [files] = await connection
       .promise()
-      .query("SELECT filename FROM files");
-    const files = rows.map(({ filename }) => filename);
+      .query("SELECT * FROM files");
     console.log("Files retrieved from the database.");
     return res.send(files);
   } catch (err) {
