@@ -24,7 +24,9 @@ func main() {
 	}
 
 	db, err := sql.Open("sqlite3", "./database.db")
-	checkErr(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 	defer db.Close()
 
 	sqlStmt := `
@@ -40,76 +42,67 @@ func main() {
 		log.Printf("%q: %s\n", err, sqlStmt)
 		return
 	}
-
-	f := File{
-		filename: "example.txt",
-		tags:     []string{"example", "text", "file"},
-	}
-
-	g := File{
-		filename: "example.txt",
-		tags:     []string{"text", "file"},
-	}
-
-	h := File{
-		filename: "another_file.txt",
-		tags:     []string{"text", "file"},
-	}
-
-	i := File{
-		filename: "example.txt",
-		tags:     []string{"text"},
-	}
-
-	f_id := insert(db, f)
-	g_id := insert(db, g)
-	insert(db, i)
-
-	update(db, g_id, h)
-	delete(db, f_id)
-
-	getAll(db)
 }
 
 // insert filename and tags. This is not upload.
-func insert(db *sql.DB, file File) int64 {
+func insert(db *sql.DB, file File) (int64, error) {
 	stmt, err := db.Prepare("INSERT INTO files(filename, tags) values(?, ?)")
-	checkErr(err)
+	if err != nil {
+		return 0, err
+	}
 
 	tags := file.tags
 	tagsString := strings.Join(tags, ";")
 
 	res, err := stmt.Exec(file.filename, tagsString)
-	checkErr(err)
+	if err != nil {
+		return 0, err
+	}
 
 	id, err := res.LastInsertId()
-	checkErr(err)
+	if err != nil {
+		return 0, err
+	}
 
-	return id
+	return id, nil
 }
 
-func update(db *sql.DB, id int64, file File) {
+func update(db *sql.DB, id int64, file File) error {
 	stmt, err := db.Prepare("UPDATE files SET tags=? WHERE uid=?")
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	tags := file.tags
 	tagsString := strings.Join(tags, ";")
 
 	_, err = stmt.Exec(tagsString, id)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func delete(db *sql.DB, id int64) {
+func delete(db *sql.DB, id int64) error {
 	stmt, err := db.Prepare("DELETE from FILES WHERE uid=?")
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	_, err = stmt.Exec(id)
-	checkErr(err)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func getAll(db *sql.DB) {
+func getAll(db *sql.DB) error {
 	rows, err := db.Query("SELECT * FROM files")
-	checkErr(err)
+	if err != nil {
+		return err
+	}
 
 	var uid int
 	var filename string
@@ -118,15 +111,14 @@ func getAll(db *sql.DB) {
 
 	for rows.Next() {
 		err = rows.Scan(&uid, &filename, &tags, &created)
-		checkErr(err)
+		if err != nil {
+			return err
+		}
+
 		fmt.Println(uid, filename, tags, created)
 	}
 
 	rows.Close()
-}
 
-func checkErr(err error) {
-	if err != nil {
-		log.Fatal(err)
-	}
+	return nil
 }
