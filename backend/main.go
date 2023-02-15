@@ -10,10 +10,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// TODO: Implement md5 hash to compare files
+// TODO: Implement sha256 hash to compare files
 // File is the struct for the file the user is going to upload.
 type File struct {
-	// hash string
+	hash     string
 	filename string
 	tags     []string
 }
