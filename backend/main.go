@@ -18,6 +18,14 @@ type File struct {
 	tags     []string
 }
 
+type FileDatabase struct {
+	uid       int64
+	hash      string
+	filename  string
+	tags      []string
+	createdAt string
+}
+
 func main() {
 	if err := os.Remove("database.db"); err != nil {
 		log.Fatal(err)
@@ -104,18 +112,15 @@ func getAll(db *sql.DB) error {
 		return err
 	}
 
-	var uid int
-	var filename string
-	var tags string
-	var created string
+	var tempFile FileDatabase
 
 	for rows.Next() {
-		err = rows.Scan(&uid, &filename, &tags, &created)
+		err = rows.Scan(&tempFile.uid, &tempFile.filename, &tempFile.tags, &tempFile.createdAt)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println(uid, filename, tags, created)
+		fmt.Println(tempFile.uid, tempFile.filename, tempFile.tags, tempFile.createdAt)
 	}
 
 	rows.Close()
