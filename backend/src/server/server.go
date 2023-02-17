@@ -118,7 +118,7 @@ func FilesUpload(w http.ResponseWriter, r *http.Request) {
 	}
 
 	f := database.File{
-		Hash:     h.Sum(nil),
+		Hash:     h.Sum(nil), // FIX: I don't know how to make this work!
 		Filename: handler.Filename,
 		Tags:     splitTags,
 	}
