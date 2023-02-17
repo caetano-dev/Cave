@@ -3,7 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"github.com/gorilla/mux"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -27,6 +29,37 @@ type FileDatabase struct {
 }
 
 func main() {
+	r := mux.NewRouter()
+
+	db, err := sql.Open("sqlite3", "./database.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	r.HandleFunc("/files", func(w http.ResponseWriter, r *http.Request) {
+		getAll(db)
+		fmt.Println("Database opened and all items fetched")
+	})
+
+  //TODO: download the file in the user's device. For now, this only fetches the file.
+	r.HandleFunc("/download/{filename}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		filename, ok := vars["filename"]
+		if !ok {
+			fmt.Println("filename is missing in paramenters")
+		}
+		file, err := getFile(db, filename)
+		if err != nil {
+			fmt.Println(file)
+		}
+	})
+
+	http.ListenAndServe(":3000", r)
+}
+
+// code for testing the database and performing all operations.
+func createDB() {
 	if err := os.Remove("database.db"); err != nil {
 		log.Fatal(err)
 	}
@@ -106,6 +139,19 @@ func delete(db *sql.DB, id int64) error {
 	return nil
 }
 
+func getFile(db *sql.DB, filename string) (FileDatabase, error) {
+	var file FileDatabase
+
+	err := db.QueryRow("SELECT * FROM files WHERE filename=?", filename).Scan(&file.uid, &file.filename, &file.tags, &file.createdAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return file, fmt.Errorf("file %d not found", filename)
+		}
+		return file, err
+	}
+	return file, nil
+}
+
 func getAll(db *sql.DB) error {
 	rows, err := db.Query("SELECT * FROM files")
 	if err != nil {
@@ -124,6 +170,28 @@ func getAll(db *sql.DB) error {
 	}
 
 	rows.Close()
+
+	return nil
+}
+
+// add the db parameters
+func addFileToDatabase(filename string, tags string, filePath string) error {
+	db, err := sql.Open("sqlite3", "./database.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	sha256, err := getFileHash(filePath)
+	if err != nil {
+		return err
+	}
+	createdAt := time.Now().Format("2006-01-02 15:04:05")
+
+	_, err = db.Exec("INSERT INTO files (filename, tags, sha256, createdAt) VALUES (?, ?, ?, ?)", filename, tags, sha256, createdAt)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
