@@ -9,17 +9,14 @@ frontend/yarn-debug.log*
 frontend/yarn-error.log*
 frontend/pnpm-debug.log*
 frontend/lerna-debug.log*
-frontend/
 frontend/node_modules
 frontend/.DS_Store
 frontend/dist
 frontend/dist-ssr
 frontend/coverage
 frontend/*.local
-frontend/
-frontend//cypress/videos/
-frontend//cypress/screenshots/
-frontend/
+frontend/cypress/videos/
+frontend/cypress/screenshots/
 frontend/# Editor directories and files
 frontend/.vscode/*
 frontend/!.vscode/extensions.json
