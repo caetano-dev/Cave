@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/drull1000/notetaking-app/src/database"
 )
@@ -77,15 +78,9 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-
-	// filename := r.FormValue("filename")
-	// tags := r.FormValue("tags")
-	// if filename == "" || tags == "" {
-	// 	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-	// 	return
-	// }
-
-	// splitTags := strings.Split("sample,test", ",")
+	newFilename := r.FormValue("newFilename")
+	tags := r.FormValue("tags")
+	splitTags := strings.Split(tags, ",")
 
 	// Maximum upload of 10 MB files
 	r.ParseMultipartForm(10 << 20)
@@ -100,6 +95,11 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 	const PATH = "./files"
 
+	if newFilename == "" {
+		newFilename = handler.Filename
+	}
+
+	fmt.Println(newFilename)
 	// Create file
 	filesystemPath := filepath.Join(PATH, handler.Filename)
 	dst, err := os.Create(filesystemPath)
@@ -119,20 +119,19 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 	hashString := hex.EncodeToString(hash.Sum(nil))
 
-	// f := database.File{
-	// 	Hash:     hashString,
-	// 	Filename: handler.Filename,
-	// 	Tags:     splitTags,
-	// }
+	f := database.File{
+		Hash:     hashString,
+		Filename: newFilename,
+		Tags:     splitTags,
+	}
 
-	// id, err := database.Insert(env.DB, f)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	// 	return
-	// }
-
-	fmt.Fprintf(w, hashString, handler.Filename)
+	id, err := database.Insert(env.DB, f)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println(id)
 }
 
 // FilesDelete is the function that deletes a file.
