@@ -2,6 +2,7 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"strings"
 
@@ -17,12 +18,20 @@ type File struct {
 }
 
 // File database is the struct with the database colunms
+//type FileDatabase struct {
+//	ID        int64
+//	Hash      string
+//	Filename  string
+//	Tags      string
+//	CreatedAt string
+//}
+
 type FileDatabase struct {
-	ID        int64
-	Hash      string
-	Filename  string
-	Tags      string
-	CreatedAt string
+	ID        int64    `json:"id"`
+	Hash      string   `json:"hash"`
+	Filename  string   `json:"filename"`
+	Tags      []string `json:"tags"`
+	CreatedAt string   `json:"created_at"`
 }
 
 // InitDB is the function that initiates the database.
@@ -134,10 +143,14 @@ func GetAll(db *sql.DB) ([]*FileDatabase, error) {
 	files := make([]*FileDatabase, 0)
 	for rows.Next() {
 		file := new(FileDatabase)
-		err := rows.Scan(&file.ID, &file.Hash, &file.Filename, &file.Tags, &file.CreatedAt)
+		var tags string // temporary variable to hold string value of "tags" column
+		err := rows.Scan(&file.ID, &file.Hash, &file.Filename, &tags, &file.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println(file.Tags)
+
+		file.Tags = strings.Split(tags, ";")
 		files = append(files, file)
 	}
 	if err = rows.Err(); err != nil {

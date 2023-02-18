@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"database/sql"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -35,10 +36,16 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, file := range files {
-		fmt.Println(file)
-		fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
+	fileBytes, err := json.Marshal(files)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	w.Write(fileBytes)
 }
 
 // FilesShow displays one file that is chosen by its ID
