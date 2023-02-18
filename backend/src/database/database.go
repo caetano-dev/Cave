@@ -2,9 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"hash"
 	"log"
-	"os"
 	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,11 +11,12 @@ import (
 // TODO: Implement sha256 hash to compare files
 // File is the struct for the file the user is going to upload.
 type File struct {
-	Hash     hash.Hash
+	Hash     string
 	Filename string
 	Tags     []string
 }
 
+// File database is the struct with the database colunms
 type FileDatabase struct {
 	ID        int64
 	Hash      string
@@ -26,37 +25,34 @@ type FileDatabase struct {
 	CreatedAt string
 }
 
-var DB *sql.DB
-
-func init() {
+// InitDB is the function that initiates the database.
+func InitDB(name string) (*sql.DB, error) {
 	var err error
 
-	if err = os.Remove("database.db"); err != nil {
-		log.Fatal(err)
-	}
-
-	DB, err = sql.Open("sqlite3", "./database.db")
+	db, err := sql.Open("sqlite3", name)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	sqlStmt := `
 	CREATE TABLE IF NOT EXISTS files (
     	uid INTEGER PRIMARY KEY AUTOINCREMENT,
-    	hash BLOB NOT NULL UNIQUE,
+    	hash BLOB NOT NULL,
     	filename VARCHAR(30) NOT NULL,
     	tags VARCHAR(64) NULL,
     	created_at TEXT DEFAULT CURRENT_TIMESTAMP
 	);`
 
-	_, err = DB.Exec(sqlStmt)
+	_, err = db.Exec(sqlStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlStmt)
-		return
+		return nil, err
 	}
+
+	return db, nil
 }
 
-// insert filename and tags. This is not upload.
+// Insert filename and tags. This does not upload the file, it just inserts it in the DB.
 func Insert(db *sql.DB, file File) (int64, error) {
 	stmt, err := db.Prepare("INSERT INTO files(hash, filename, tags) values(?, ?, ?)")
 	if err != nil {
@@ -79,8 +75,9 @@ func Insert(db *sql.DB, file File) (int64, error) {
 	return id, nil
 }
 
-// func update(db *sql.DB, id int64, file File) error {
-// 	stmt, err := db.Prepare("UPDATE files SET tags=? WHERE uid=?")
+// UpdateFile is the function that updated the file in the database
+// func UpdateFile(db *sql.DB, id int64, file File) error {
+// 	stmt, err := db.Prepare("UPDATE files SET hash=?, filename=?, tags=? WHERE uid=?")
 // 	if err != nil {
 // 		return err
 // 	}
@@ -88,28 +85,30 @@ func Insert(db *sql.DB, file File) (int64, error) {
 // 	tags := file.tags
 // 	tagsString := strings.Join(tags, ";")
 
-// 	_, err = stmt.Exec(tagsString, id)
+// 	_, err = stmt.Exec(file.Hash, file.Filename, tagsString, id)
 // 	if err != nil {
 // 		return err
 // 	}
 
-// 	return nil
+//	return nil
 // }
 
-// func delete(db *sql.DB, id int64) error {
-// 	stmt, err := db.Prepare("DELETE from FILES WHERE uid=?")
-// 	if err != nil {
-// 		return err
-// 	}
+// DeleteByID is the function that deletes the file in the database.
+func DeleteByID(db *sql.DB, id int64) error {
+	stmt, err := db.Prepare("DELETE from FILES WHERE uid=?")
+	if err != nil {
+		return err
+	}
 
-// 	_, err = stmt.Exec(id)
-// 	if err != nil {
-// 		return err
-// 	}
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
 
-// 	return nil
-// }
+	return nil
+}
 
+// GetByID is the function that gets a file by ID from the database.
 func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
 	row := db.QueryRow("SELECT * FROM files WHERE uid = $1", uid)
 
@@ -124,6 +123,7 @@ func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
 	return *file, nil
 }
 
+// GetAll is the function that gets all the files from the database.
 func GetAll(db *sql.DB) ([]*FileDatabase, error) {
 	rows, err := db.Query("SELECT * FROM files")
 	if err != nil {

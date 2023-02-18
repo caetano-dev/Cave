@@ -1,16 +1,37 @@
 package main
 
 import (
+	"flag"
+	"log"
 	"net/http"
+	"os"
 
+	"github.com/drull1000/notetaking-app/src/database"
 	"github.com/drull1000/notetaking-app/src/server"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func main() {
-	http.HandleFunc("/files", server.FilesIndex)
-	http.HandleFunc("/files/show", server.FilesShow)
-	http.HandleFunc("/files/upload", server.FilesUpload)
+type Config struct {
+	Database string
+}
 
-	http.ListenAndServe(":3000", nil)
+func main() {
+	var c Config
+	flag.StringVar(&c.Database, "database", os.Getenv("DATABASE_NAME"), "database name")
+	flag.Parse()
+
+	db, err := database.InitDB(c.Database)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	env := &server.Env{DB: db}
+
+	http.HandleFunc("/files", env.FilesShowAll)
+	http.HandleFunc("/files/show", env.FilesShow)
+	http.HandleFunc("/files/upload", env.FilesUpload)
+	http.HandleFunc("/files/delete", env.FilesDelete)
+	http.HandleFunc("/healthcheck", env.HealthCheck)
+
+	http.ListenAndServe("127.0.0.1:3000", nil)
 }
