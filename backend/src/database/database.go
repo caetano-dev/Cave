@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"strings"
 
@@ -17,15 +16,7 @@ type File struct {
 	Tags     []string
 }
 
-// File database is the struct with the database colunms
-//type FileDatabase struct {
-//	ID        int64
-//	Hash      string
-//	Filename  string
-//	Tags      string
-//	CreatedAt string
-//}
-
+// FileDatabase is the structure of the file in the database
 type FileDatabase struct {
 	ID        int64    `json:"id"`
 	Hash      string   `json:"hash"`
@@ -43,7 +34,7 @@ func InitDB(name string) (*sql.DB, error) {
 		return nil, err
 	}
 
-	sqlStmt := `
+	const createTableStmt = `
 	CREATE TABLE IF NOT EXISTS files (
     	uid INTEGER PRIMARY KEY AUTOINCREMENT,
     	hash BLOB NOT NULL,
@@ -52,9 +43,9 @@ func InitDB(name string) (*sql.DB, error) {
     	created_at TEXT DEFAULT CURRENT_TIMESTAMP
 	);`
 
-	_, err = db.Exec(sqlStmt)
+	_, err = db.Exec(createTableStmt)
 	if err != nil {
-		log.Printf("%q: %s\n", err, sqlStmt)
+		log.Printf("%q: %s\n", err, createTableStmt)
 		return nil, err
 	}
 
@@ -104,7 +95,7 @@ func Insert(db *sql.DB, file File) (int64, error) {
 
 // DeleteByID is the function that deletes the file in the database.
 func DeleteByID(db *sql.DB, id int64) error {
-	stmt, err := db.Prepare("DELETE from FILES WHERE uid=?")
+	stmt, err := db.Prepare("DELETE FROM FILES WHERE uid=?")
 	if err != nil {
 		return err
 	}
@@ -148,7 +139,6 @@ func GetAll(db *sql.DB) ([]*FileDatabase, error) {
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(file.Tags)
 
 		file.Tags = strings.Split(tags, ";")
 		files = append(files, file)
