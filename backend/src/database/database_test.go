@@ -10,6 +10,26 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+func TestInitDB(t *testing.T) {
+	// initialize an in-memory database for testing
+	db, err := InitDB(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	// check if the "files" table was created
+	rows, err := db.Query("SELECT name FROM sqlite_master WHERE type='table' AND name='files'")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+
+	if !rows.Next() {
+		t.Error("InitDB() did not create the \"files\" table")
+	}
+}
+
 func TestInsert(t *testing.T) {
 	db, _ := InitDB(":memory:")
 	file := File{
