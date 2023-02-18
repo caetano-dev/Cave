@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
+	"reflect"
 
 	"testing"
 
@@ -55,5 +57,129 @@ func TestInsert(t *testing.T) {
 				t.Errorf("Insert() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestDeleteByID(t *testing.T) {
+	// initialize an in-memory database for testing
+	db, err := InitDB(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	// insert a test file into the database
+	file := File{
+		Hash:     "hash1",
+		Filename: "file1.txt",
+		Tags:     []string{"tag1", "tag2"},
+	}
+	id, err := Insert(db, file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// test deleting the file by its ID
+	err = DeleteByID(db, id)
+	if err != nil {
+		t.Errorf("DeleteByID() error = %v, wantErr nil", err)
+	}
+
+	// verify that the file is no longer in the database
+	rows, err := db.Query("SELECT * FROM files WHERE uid=?", id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rows.Close()
+	if rows.Next() {
+		t.Errorf("DeleteByID() did not delete file with ID %d", id)
+	}
+}
+
+func TestGetByID_ValidID(t *testing.T) {
+	// initialize an in-memory database for testing
+	db, err := InitDB(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	// insert a file into the database
+	file := File{
+		Hash:     "abc123",
+		Filename: "file.txt",
+		Tags:     []string{"tag1", "tag2"},
+	}
+	_, err = Insert(db, file)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// get the file by ID
+	dbFile, err := GetByID(db, 1)
+	fmt.Println(dbFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// verify that the file was retrieved correctly
+	expectedFile := FileDatabase{
+		ID:        1,
+		Hash:      "abc123",
+		Filename:  "file.txt",
+		Tags:      []string{"tag1", "tag2"},
+		CreatedAt: dbFile.CreatedAt,
+	}
+	if !reflect.DeepEqual(dbFile, expectedFile) {
+		t.Errorf("GetByID() returned %+v, expected %+v", dbFile, expectedFile)
+	}
+}
+
+func TestGetAll(t *testing.T) {
+	// initialize an in-memory database for testing
+	db, err := InitDB(":memory:")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+
+	// insert test data into the database
+	file1 := &File{Hash: "hash1", Filename: "file1.txt", Tags: []string{"tag1", "tag2"}}
+	file2 := &File{Hash: "hash2", Filename: "file2.txt", Tags: []string{"tag3", "tag4"}}
+	_, err = Insert(db, *file1)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = Insert(db, *file2)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// retrieve all files from the database
+	files, err := GetAll(db)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// check that the correct number of files were retrieved
+	if len(files) != 2 {
+		t.Errorf("expected %d files, got %d", 2, len(files))
+	}
+
+	// check that the retrieved files have the correct data
+	for i, file := range files {
+		if file.ID != int64(i+1) {
+			t.Errorf("expected file %d to have ID %d, got %d", i+1, i+1, file.ID)
+		}
+		if file.Hash != fmt.Sprintf("hash%d", i+1) {
+			t.Errorf("expected file %d to have hash %s, got %s", i+1, fmt.Sprintf("hash%d", i+1), file.Hash)
+		}
+		if file.Filename != fmt.Sprintf("file%d.txt", i+1) {
+			t.Errorf("expected file %d to have filename %s, got %s", i+1, fmt.Sprintf("file%d.txt", i+1), file.Filename)
+		}
+		if !reflect.DeepEqual(file.Tags, []string{fmt.Sprintf("tag%d", i*2+1), fmt.Sprintf("tag%d", i*2+2)}) {
+			t.Errorf("expected file %d to have tags %v, got %v", i+1, []string{fmt.Sprintf("tag%d", i*2+1), fmt.Sprintf("tag%d", i*2+2)}, file.Tags)
+		}
 	}
 }

@@ -113,7 +113,9 @@ func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
 	row := db.QueryRow("SELECT * FROM files WHERE uid = $1", uid)
 
 	file := new(FileDatabase)
-	err := row.Scan(&file.ID, &file.Hash, &file.Filename, &file.Tags, &file.CreatedAt)
+	var tags string // temporary variable to hold string value of "tags" column
+	err := row.Scan(&file.ID, &file.Hash, &file.Filename, &tags, &file.CreatedAt)
+	file.Tags = strings.Split(tags, ";")
 	if err == sql.ErrNoRows {
 		return *file, nil
 	} else if err != nil {
