@@ -34,6 +34,7 @@ func TestInsert(t *testing.T) {
 	db, _ := InitDB(":memory:")
 	file := File{
 		Hash:     "hash1",
+		Type:     "file",
 		Filename: "file1.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
@@ -61,7 +62,7 @@ func TestInsert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr {
-				stmt, err := tt.args.db.Prepare("INSERT INTO files(hash, filename, tags) values(?, ?, ?)")
+				stmt, err := tt.args.db.Prepare("INSERT INTO files(hash, type, filename, tags) values(?, ?, ?, ?)")
 				if err != nil {
 					t.Fatal(err)
 				}
@@ -91,6 +92,7 @@ func TestDeleteByID(t *testing.T) {
 	// insert a test file into the database
 	file := File{
 		Hash:     "hash1",
+		Type:     "file",
 		Filename: "file1.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
@@ -127,6 +129,7 @@ func TestGetByID_ValidID(t *testing.T) {
 	// insert a file into the database
 	file := File{
 		Hash:     "abc123",
+		Type:     "file",
 		Filename: "file.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
@@ -146,6 +149,7 @@ func TestGetByID_ValidID(t *testing.T) {
 	expectedFile := FileDatabase{
 		ID:        1,
 		Hash:      "abc123",
+		Type:      "file",
 		Filename:  "file.txt",
 		Tags:      []string{"tag1", "tag2"},
 		CreatedAt: dbFile.CreatedAt,
@@ -164,8 +168,8 @@ func TestGetAll(t *testing.T) {
 	defer db.Close()
 
 	// insert test data into the database
-	file1 := &File{Hash: "hash1", Filename: "file1.txt", Tags: []string{"tag1", "tag2"}}
-	file2 := &File{Hash: "hash2", Filename: "file2.txt", Tags: []string{"tag3", "tag4"}}
+	file1 := &File{Hash: "hash1", Type: "file", Filename: "file1.txt", Tags: []string{"tag1", "tag2"}}
+	file2 := &File{Hash: "hash2", Type: "file", Filename: "file2.txt", Tags: []string{"tag3", "tag4"}}
 	_, err = Insert(db, *file1)
 
 	if err != nil {
@@ -194,6 +198,9 @@ func TestGetAll(t *testing.T) {
 		}
 		if file.Hash != fmt.Sprintf("hash%d", i+1) {
 			t.Errorf("expected file %d to have hash %s, got %s", i+1, fmt.Sprintf("hash%d", i+1), file.Hash)
+		}
+		if file.Type != fmt.Sprintf("Type%d", i+1) {
+			t.Errorf("expected file %d to have Type %s, got %s", i+1, fmt.Sprintf("Type%d", i+1), file.Type)
 		}
 		if file.Filename != fmt.Sprintf("file%d.txt", i+1) {
 			t.Errorf("expected file %d to have filename %s, got %s", i+1, fmt.Sprintf("file%d.txt", i+1), file.Filename)

@@ -12,6 +12,7 @@ import (
 // File is the struct for the file the user is going to upload.
 type File struct {
 	Hash     string
+	Type     string
 	Filename string
 	Tags     []string
 }
@@ -20,6 +21,7 @@ type File struct {
 type FileDatabase struct {
 	ID        int64    `json:"id"`
 	Hash      string   `json:"hash"`
+	Type      string   `json:"type"`
 	Filename  string   `json:"filename"`
 	Tags      []string `json:"tags"`
 	CreatedAt string   `json:"created_at"`
@@ -38,6 +40,7 @@ func InitDB(name string) (*sql.DB, error) {
 	CREATE TABLE IF NOT EXISTS files (
     	uid INTEGER PRIMARY KEY AUTOINCREMENT,
     	hash BLOB NOT NULL,
+    	type VARCHAR(5) NULL,
     	filename VARCHAR(30) NOT NULL,
     	tags VARCHAR(64) NULL,
     	created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -54,7 +57,7 @@ func InitDB(name string) (*sql.DB, error) {
 
 // Insert filename and tags. This does not upload the file, it just inserts it in the DB.
 func Insert(db *sql.DB, file File) (int64, error) {
-	stmt, err := db.Prepare("INSERT INTO files(hash, filename, tags) values(?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO files(hash, type, filename, tags) values(?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
@@ -62,7 +65,7 @@ func Insert(db *sql.DB, file File) (int64, error) {
 	tags := file.Tags
 	tagsString := strings.Join(tags, ";")
 
-	res, err := stmt.Exec(file.Hash, file.Filename, tagsString)
+	res, err := stmt.Exec(file.Hash, "file", file.Filename, tagsString) //todo: remove this hardcode value
 	if err != nil {
 		return 0, err
 	}
@@ -114,7 +117,7 @@ func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
 
 	file := new(FileDatabase)
 	var tags string // temporary variable to hold string value of "tags" column
-	err := row.Scan(&file.ID, &file.Hash, &file.Filename, &tags, &file.CreatedAt)
+	err := row.Scan(&file.ID, &file.Hash, &file.Type, &file.Filename, &tags, &file.CreatedAt)
 	file.Tags = strings.Split(tags, ";")
 	if err == sql.ErrNoRows {
 		return *file, nil
@@ -137,7 +140,7 @@ func GetAll(db *sql.DB) ([]*FileDatabase, error) {
 	for rows.Next() {
 		file := new(FileDatabase)
 		var tags string // temporary variable to hold string value of "tags" column
-		err := rows.Scan(&file.ID, &file.Hash, &file.Filename, &tags, &file.CreatedAt)
+		err := rows.Scan(&file.ID, &file.Hash, &file.Type, &file.Filename, &tags, &file.CreatedAt)
 		if err != nil {
 			return nil, err
 		}

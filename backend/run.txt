@@ -1,1 +1,1 @@
-DATABASE_NAME=database.go go run src/.
+DATABASE_NAME=database.db go run src/.
