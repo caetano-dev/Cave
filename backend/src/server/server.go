@@ -24,6 +24,8 @@ type Env struct {
 
 // FilesShowAll displays all of the files from the database.
 func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return

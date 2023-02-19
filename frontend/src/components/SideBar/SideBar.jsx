@@ -1,50 +1,8 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import './SideBar.css';
 
 function SideBar({ toggle, toggleState }) {
   const [data, setData] = useState([
-    {
-      name: "Foobar",
-      type: "folder",
-      children: [
-        {
-          name: "foo.txt",
-          type: "file",
-        },
-        {
-          name: "bar.txt",
-          type: "file",
-        },
-      ],
-    },
-    {
-      name: "Lorem Impsum",
-      type: "folder",
-      children: [
-        {
-          name: "lorem.txt",
-          type: "file",
-        },
-        {
-          name: "inpsum.txt",
-          type: "file",
-        },
-        {
-          name: "Latin Class",
-          type: "folder",
-          children: [
-            {
-              name: "latin.txt",
-              type: "file",
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: "file.txt",
-      type: "file",
-    },
   ]);
   useEffect(() => {
     fetch("http://localhost:3000/files")
@@ -59,8 +17,7 @@ function SideBar({ toggle, toggleState }) {
       {folder.name} <ul>{folder.children.map(renderNode)}</ul>
     </li>
   );
-  const renderFile = (file) => <li className="file">{file.name}</li>;
-
+  const renderFile = (file) => <li className="file">{file.filename}</li>;
   const renderNode = (content) => <>{content.type == 'folder' ? renderFolder(content) : renderFile(content)}</>
 
   return <>
