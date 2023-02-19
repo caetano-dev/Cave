@@ -33,8 +33,8 @@ func main() {
 	http.HandleFunc("/files/upload", env.FilesUpload)
 	http.HandleFunc("/files/delete", env.FilesDelete)
 	http.HandleFunc("/healthcheck", env.HealthCheck)
+	http.HandleFunc("/filecontent", env.FileContent)
 
-	fmt.Println("Hello")
+	fmt.Println("https://127.0.0.1:3000/")
 	http.ListenAndServe("127.0.0.1:3000", nil)
-	fmt.Println("World")
 }

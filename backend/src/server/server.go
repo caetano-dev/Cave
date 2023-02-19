@@ -108,7 +108,6 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		newFilename = handler.Filename
 	}
 
-	fmt.Println(newFilename)
 	// Create file
 	filesystemPath := filepath.Join(PATH, handler.Filename)
 	dst, err := os.Create(filesystemPath)
@@ -140,7 +139,8 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println(id)
+
+	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
 }
 
 // FilesDelete is the function that deletes a file.
@@ -186,6 +186,69 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "File %s deleted successfully (id: %d)\n", file.Filename, file.ID)
+}
+
+type responseFileContent struct {
+	FileInformation database.FileDatabase
+	Content         string
+}
+
+func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
+	//get the file from the database, read it and return a json response
+
+	// Parse the ID of the file from the request parameters
+	// id, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 64) // remove this mux
+	// if err != nil {
+	// 	http.Error(w, "Invalid file ID", http.StatusBadRequest)
+	// 	return
+	// }
+
+	var id int64 = 1
+
+	// Retrieve the file from the database
+
+	f, err := database.GetByID(env.DB, id)
+	if err != nil {
+		http.Error(w, "File not found", http.StatusNotFound)
+		return
+	}
+
+	const PATH = "./files"
+	filesystemPath := filepath.Join(PATH, f.Filename)
+
+	// Open the file
+	file, err := os.Open(filesystemPath)
+	if err != nil {
+		http.Error(w, "Failed to open file", http.StatusInternalServerError)
+		return
+	}
+	defer file.Close()
+
+	// Read the contents of the file
+	byteContent, err := io.ReadAll(file)
+	if err != nil {
+		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		return
+	}
+
+	content := string(byteContent[:])
+
+	response := &responseFileContent{
+		FileInformation: f,
+		Content:         content,
+	}
+
+	// Set the content type and write the content to the response
+	fileBytes, err := json.Marshal(response)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	fmt.Println("fileBytes ", fileBytes)
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(fileBytes)
 }
 
 func (env *Env) HealthCheck(w http.ResponseWriter, r *http.Request) {

@@ -9,9 +9,14 @@ export function App() {
   const [toggle, setToggle] = useState("open") //open/close
   const toggleState = () => toggle == "open" ? setToggle("close") : setToggle("open");
 
+  const [filename, setFilename] = useState("Title")
+  const [content, setContent] = useState("content")
+
   return (
     <>
-      <File toggle={toggle} />
+
+      {/*clica -> baixa automaticamente (pode ser cache)-> edita -> salva -> upload*/}
+      <File toggle={toggle} filename={filename} content={content} />
       <SideBar toggle={toggle} toggleState={toggleState} />
     </>
   );
