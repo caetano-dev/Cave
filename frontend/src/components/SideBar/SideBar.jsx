@@ -4,74 +4,57 @@ import './SideBar.css';
 function SideBar() {
   const [data, setData] = useState([
     {
-      name: 'Folder 1',
+      name: 'Foobar',
       type: 'folder',
       children: [
         {
-          name: 'File 1',
+          name: 'foo.txt',
           type: 'file'
         },
         {
-          name: 'File 2',
+          name: 'bar.txt',
           type: 'file'
         }
       ]
     },
     {
-      name: 'Folder 2',
+      name: 'Lorem Impsum',
       type: 'folder',
       children: [
         {
-          name: 'File 3',
+          name: 'lorem.txt',
           type: 'file'
         },
         {
-          name: 'File 4',
+          name: 'inpsum.txt',
           type: 'file'
         },
         {
-          name: 'Folder 3',
+          name: 'Latin Class',
           type: 'folder',
           children: [
             {
-              name: 'File 5',
+              name: 'latin.txt',
               type: 'file'
-            }
+            },
+
           ]
         }
       ]
     },
     {
-      name: 'File 6',
+      name: 'file.txt',
       type: 'file'
     }
   ]);
 
-  const handleClick = (node) => {
-    if (node.type === 'folder') {
-      const updatedNode = {...node, isOpen: !node.isOpen};
-      const updatedData = data.map((n) => (n === node ? updatedNode : n));
-      setData(updatedData)
-    }
-  };
+  const renderFolder = (folder) => <li className='folder'>{folder.name} <ul>{folder.children.map(renderNode)}</ul></li>
+  const renderFile = (file) => <li className='file'>{file.name}</li>
 
-  const renderNode = (node, level = 0) => {
-    const isFolder = node.type === 'folder';
-    const marginLeft = level * 16;
+  const renderNode = (content) => <>{content.type == 'folder' ? renderFolder(content) : renderFile(content)}</>
 
-    return (
-      <div key={node.name} style={{ marginLeft }} className="node">
-        <div className={isFolder ? "folder" + (node.isOpen ? " open" : "") : "file"} onClick={() => handleClick(node)}>{node.name}</div>
-        {isFolder && node.children && (
-          <div className={"children"}>
-            {node.children.map(childNode => renderNode(childNode, level + 1))}
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  return <div className={"sidebar"}>{data.map(node => renderNode(node))}</div>;
+  return <aside className='sidebar close'>Folders<ul>{data.map(renderNode)}</ul></aside>
 }
 
 export default SideBar;
+

@@ -2,7 +2,6 @@ package server
 
 import (
 	"io"
-	"io/ioutil"
 	"log"
 	"mime/multipart"
 	"net/http"
@@ -77,7 +76,7 @@ func TestEnv_FilesUpload(t *testing.T) {
 		t.Errorf("Expected %d, received %d", http.StatusOK, wr.Code)
 	}
 
-	data, err := ioutil.ReadAll(response.Body)
+	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		log.Fatal(err)
 	}

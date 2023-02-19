@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -33,5 +34,7 @@ func main() {
 	http.HandleFunc("/files/delete", env.FilesDelete)
 	http.HandleFunc("/healthcheck", env.HealthCheck)
 
+	fmt.Println("Hello")
 	http.ListenAndServe("127.0.0.1:3000", nil)
+	fmt.Println("World")
 }
