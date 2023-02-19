@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './SideBar.css';
 
-function SideBar() {
+function SideBar({ toggle, toggleState }) {
   const [data, setData] = useState([
     {
       name: 'Foobar',
@@ -47,13 +47,17 @@ function SideBar() {
       type: 'file'
     }
   ]);
-
   const renderFolder = (folder) => <li className='folder'>{folder.name} <ul>{folder.children.map(renderNode)}</ul></li>
   const renderFile = (file) => <li className='file'>{file.name}</li>
 
   const renderNode = (content) => <>{content.type == 'folder' ? renderFolder(content) : renderFile(content)}</>
 
-  return <aside className='sidebar close'>Folders<ul>{data.map(renderNode)}</ul></aside>
+  return <>
+    <aside className={"sidebar " + toggle}>
+      <button className="sideBarButton" onClick={toggleState}>☰</button>
+      <ul>{data.map(renderNode)}</ul>
+    </aside>
+  </>
 }
 
 export default SideBar;

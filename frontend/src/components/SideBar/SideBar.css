@@ -9,6 +9,7 @@
 
   overflow-x: hidden;
   transition: 0.5s;
+  padding: 1.7rem 0rem 0rem 0rem
 }
 
 .sidebar .folder {
@@ -29,4 +30,11 @@
 
 .sidebar.close {
   width: 0px;
+}
+
+.sideBarButton {
+  position: fixed;
+  top: 0px;
+
+  font-size: 0.8rem;
 }

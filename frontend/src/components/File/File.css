@@ -1,0 +1,12 @@
+.title {
+    transition: 0.5s;
+}
+
+
+.title.open {
+    padding-left: 200px;
+}
+
+.title.close {
+    padding-left: 0px;
+}

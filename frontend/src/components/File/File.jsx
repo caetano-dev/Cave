@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import './File.css';
 
-function File() {
-    return <h1>Hello World</h1>
+function File({ toggle }) {
+
+    return <h1 className={"title " + toggle}>Hello World</h1>
 }
 
 export default File;
