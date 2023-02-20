@@ -1,12 +1,15 @@
-.title {
+main {
+    transition: 0.5s;
+    border:1px solid red;
+}
+
+
+main .open {
+    padding-left: 20rem;
     transition: 0.5s;
 }
 
-
-.title.open {
-    padding-left: 200px;
-}
-
-.title.close {
-    padding-left: 0px;
+main .close {
+    padding-left: 5rem;
+    transition: 0.5s;
 }
