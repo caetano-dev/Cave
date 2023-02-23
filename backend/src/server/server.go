@@ -193,7 +193,7 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File %s deleted successfully (id: %d)\n", file.Filename, file.ID)
 }
 
-// TODO: fix this function integration with the frontend. It is showing a network error
+// FileContent function opens a file and returns its content as a response
 func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
