@@ -195,20 +195,29 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 
 // TODO: fix this function integration with the frontend. It is showing a network error
 func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("function call")
-
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
 
-	uid := r.FormValue("ID")
-	if uid == "" {
+	var requestBody struct {
+		ID int64 `json:"id"`
+	}
+
+	err := json.NewDecoder(r.Body).Decode(&requestBody)
+
+	if err != nil {
+		fmt.Println(err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	id, err := strconv.ParseInt(uid, 10, 64)
+	if fmt.Sprint(requestBody.ID) == "" {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.ParseInt(fmt.Sprint(requestBody.ID), 10, 64)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -223,7 +232,6 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 	const PATH = "./files"
 	filesystemPath := filepath.Join(PATH, f.Filename)
 
-	// Open the file
 	file, err := os.Open(filesystemPath)
 	if err != nil {
 		http.Error(w, "Failed to open file", http.StatusInternalServerError)
@@ -256,7 +264,6 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("fileBytes ", fileBytes)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(fileBytes)
