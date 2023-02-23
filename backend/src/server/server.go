@@ -22,6 +22,11 @@ type Env struct {
 	DB *sql.DB
 }
 
+type responseFileContent struct {
+	FileInformation database.FileDatabase
+	Content         string
+}
+
 // FilesShowAll displays all of the files from the database.
 func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
@@ -188,31 +193,33 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File %s deleted successfully (id: %d)\n", file.Filename, file.ID)
 }
 
-type responseFileContent struct {
-	FileInformation database.FileDatabase
-	Content         string
-}
-
+// TODO: fix this function integration with the frontend. It is showing a network error
 func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
-	//get the file from the database, read it and return a json response
+	fmt.Println("function call")
 
-	// Parse the ID of the file from the request parameters
-	// id, err := strconv.ParseInt(mux.Vars(r)["id"], 10, 64) // remove this mux
-	// if err != nil {
-	// 	http.Error(w, "Invalid file ID", http.StatusBadRequest)
-	// 	return
-	// }
+	if r.Method != http.MethodGet {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
 
-	var id int64 = 1
+	uid := r.FormValue("ID")
+	if uid == "" {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
 
-	// Retrieve the file from the database
-
+	id, err := strconv.ParseInt(uid, 10, 64)
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+	// get file data from database
 	f, err := database.GetByID(env.DB, id)
 	if err != nil {
 		http.Error(w, "File not found", http.StatusNotFound)
 		return
 	}
-
+	// open file
 	const PATH = "./files"
 	filesystemPath := filepath.Join(PATH, f.Filename)
 
@@ -222,9 +229,13 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to open file", http.StatusInternalServerError)
 		return
 	}
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 	defer file.Close()
 
-	// Read the contents of the file
 	byteContent, err := io.ReadAll(file)
 	if err != nil {
 		http.Error(w, "Failed to read file", http.StatusInternalServerError)
