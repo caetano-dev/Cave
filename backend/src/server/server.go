@@ -57,6 +57,8 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 
 // FilesShow displays one file that is chosen by its ID
 func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -88,6 +90,8 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 
 // FilesUpload is the function that uploads a file.
 func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+
 	if r.Method != http.MethodPost {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -107,14 +111,19 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	const PATH = "./files"
+	files_path := filepath.Join(".", "files")
+	err = os.MkdirAll(files_path, os.ModePerm)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
+		return
+	}
 
 	if newFilename == "" {
 		newFilename = handler.Filename
 	}
 
-	// Create file
-	filesystemPath := filepath.Join(PATH, handler.Filename)
+	// Create `files` if not exist
+	filesystemPath := filepath.Join(files_path, handler.Filename)
 	dst, err := os.Create(filesystemPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -150,6 +159,8 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 // FilesDelete is the function that deletes a file.
 func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+
 	if r.Method != "DELETE" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -195,6 +206,15 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 
 // FileContent function opens a file and returns its content as a response
 func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
+	header := w.Header()
+
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+	header.Add("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusOK)
+
 	if r.Method != http.MethodPost {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
@@ -265,7 +285,6 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(fileBytes)
 }
 
