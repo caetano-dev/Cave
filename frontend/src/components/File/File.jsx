@@ -5,9 +5,9 @@ function File({ toggle, filename, content }) {
 
   return (
     <>
-      <main>
-        <h1 className={toggle}>{filename}</h1>
-        <p className={toggle}>{content}</p>
+      <main className={toggle}>
+        <h1 className='title'>{filename}</h1>
+        <p className='content'>{content}</p>
       </main>
     </>
   );
