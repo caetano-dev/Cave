@@ -36,6 +36,7 @@ func TestInsert(t *testing.T) {
 		Hash:     "hash1",
 		Type:     "file",
 		Filename: "file1.txt",
+		Filepath: "files/file1.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
 
@@ -94,6 +95,7 @@ func TestDeleteByID(t *testing.T) {
 		Hash:     "hash1",
 		Type:     "file",
 		Filename: "file1.txt",
+		Filepath: "files/file1.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
 	id, err := Insert(db, file)
@@ -131,6 +133,7 @@ func TestGetByID_ValidID(t *testing.T) {
 		Hash:     "abc123",
 		Type:     "file",
 		Filename: "file.txt",
+		Filepath: "files/file.txt",
 		Tags:     []string{"tag1", "tag2"},
 	}
 	_, err = Insert(db, file)
@@ -151,6 +154,7 @@ func TestGetByID_ValidID(t *testing.T) {
 		Hash:      "abc123",
 		Type:      "file",
 		Filename:  "file.txt",
+		Filepath:  "files/file.txt",
 		Tags:      []string{"tag1", "tag2"},
 		CreatedAt: dbFile.CreatedAt,
 	}
@@ -168,8 +172,8 @@ func TestGetAll(t *testing.T) {
 	defer db.Close()
 
 	// insert test data into the database
-	file1 := &File{Hash: "hash1", Type: "file", Filename: "file1.txt", Tags: []string{"tag1", "tag2"}}
-	file2 := &File{Hash: "hash2", Type: "file", Filename: "file2.txt", Tags: []string{"tag3", "tag4"}}
+	file1 := &File{Hash: "hash1", Type: "file", Filename: "file1.txt", Filepath: "files/file1.txt", Tags: []string{"tag1", "tag2"}}
+	file2 := &File{Hash: "hash2", Type: "file", Filename: "file2.txt", Filepath: "files/file2.txt", Tags: []string{"tag3", "tag4"}}
 	_, err = Insert(db, *file1)
 
 	if err != nil {
@@ -199,11 +203,14 @@ func TestGetAll(t *testing.T) {
 		if file.Hash != fmt.Sprintf("hash%d", i+1) {
 			t.Errorf("expected file %d to have hash %s, got %s", i+1, fmt.Sprintf("hash%d", i+1), file.Hash)
 		}
-		if file.Type != fmt.Sprintf("Type%d", i+1) {
+		if file.Type != fmt.Sprintf("%s", file.Type) {
 			t.Errorf("expected file %d to have Type %s, got %s", i+1, fmt.Sprintf("Type%d", i+1), file.Type)
 		}
 		if file.Filename != fmt.Sprintf("file%d.txt", i+1) {
 			t.Errorf("expected file %d to have filename %s, got %s", i+1, fmt.Sprintf("file%d.txt", i+1), file.Filename)
+		}
+		if file.Filepath != fmt.Sprintf("files/file%d.txt", i+1) {
+			t.Errorf("expected file %d to have filepath %s, got %s", i+1, fmt.Sprintf("files/file%d.txt", i+1), file.Filepath)
 		}
 		if !reflect.DeepEqual(file.Tags, []string{fmt.Sprintf("tag%d", i*2+1), fmt.Sprintf("tag%d", i*2+2)}) {
 			t.Errorf("expected file %d to have tags %v, got %v", i+1, []string{fmt.Sprintf("tag%d", i*2+1), fmt.Sprintf("tag%d", i*2+2)}, file.Tags)
