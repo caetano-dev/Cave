@@ -144,6 +144,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	f := database.File{
 		Hash:     hashString,
 		Filename: newFilename,
+		Filepath: filesystemPath,
 		Tags:     splitTags,
 	}
 
@@ -249,10 +250,7 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// open file
-	const PATH = "./files"
-	filesystemPath := filepath.Join(PATH, f.Filename)
-
-	file, err := os.Open(filesystemPath)
+	file, err := os.Open(f.Filepath)
 	if err != nil {
 		http.Error(w, "Failed to open file", http.StatusInternalServerError)
 		return

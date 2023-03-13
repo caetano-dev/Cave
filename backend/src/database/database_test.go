@@ -62,7 +62,7 @@ func TestInsert(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if tt.wantErr {
-				stmt, err := tt.args.db.Prepare("INSERT INTO files(hash, type, filename, tags) values(?, ?, ?, ?)")
+				stmt, err := tt.args.db.Prepare("INSERT INTO files(hash, type, filename, filepath, tags) values(?, ?, ?, ?, ?)")
 				if err != nil {
 					t.Fatal(err)
 				}
