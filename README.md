@@ -7,5 +7,5 @@ Run the frontend with `npm run dev`.
 
 To-do:
 
-- Allow user to edit the file and save to the server it with CTRL+S.
+- Allow user to save the file to the server with CTRL+S.
 - Fix the last test function for the database.
