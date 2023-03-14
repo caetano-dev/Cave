@@ -89,6 +89,7 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 }
 
 // FilesUpload is the function that uploads a file.
+// TODO: implement a way of changing the filepath if the file is duplicate 
 func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 
