@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/drull1000/notetaking-app/src/database"
+	"github.com/drull1000/notetaking-app/src/utils"
 )
 
 // Env struct is the database env
@@ -88,8 +89,32 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
 }
 
+func fileExists(filesystemPath string) bool {
+    if _, err := os.Stat(filesystemPath); os.IsNotExist(err) {
+        return false // file does not exist
+    }
+    return true // file exists
+}
+
+func uniqueFilesystemPath(filesystemPath string) string {
+    if !fileExists(filesystemPath) {
+        return filesystemPath // file does not exist, return original filename
+    }
+
+    base := filesystemPath[:len(filesystemPath)-len(filepath.Ext(filesystemPath))] // remove extension
+    ext := filepath.Ext(filesystemPath) // get extension
+    i := 1
+
+    for {
+        newfilesystemPath := base + "_" + strconv.Itoa(i) + ext
+          if !fileExists(newfilesystemPath) {
+              return newfilesystemPath // unique filename found
+        }
+        i++
+    }
+}
+
 // FilesUpload is the function that uploads a file.
-// TODO: implement a way of changing the filepath if the file is duplicate 
 func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
 
@@ -112,19 +137,22 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
+	if newFilename == "" {
+		newFilename = handler.Filename
+	}
+
 	files_path := filepath.Join(".", "files")
 	err = os.MkdirAll(files_path, os.ModePerm)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
 		return
 	}
-
-	if newFilename == "" {
-		newFilename = handler.Filename
-	}
-
 	// Create `files` if not exist
 	filesystemPath := filepath.Join(files_path, handler.Filename)
+  fmt.Println("before: ", filesystemPath)
+  filesystemPath = uniqueFilesystemPath(filesystemPath)
+  fmt.Println("after: ", filesystemPath)
+
 	dst, err := os.Create(filesystemPath)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

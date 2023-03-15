@@ -10,7 +10,5 @@ To-do:
 - Allow user to save the file to the server with CTRL+S.
   - Create a function and route to edit the filecontent.
 - Fix the last test function for the database.
+- Fix the sidebar that does not have a scroll
 
-Think about a solution for:
-
-- User duplicating a file (we can't have the same filepath, if he edits one of them).

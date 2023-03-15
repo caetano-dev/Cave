@@ -1,5 +1,5 @@
 backend/node_modules
-backend/files/*
+backend/src/files/*
 backend/.env
 
 frontend/logs
