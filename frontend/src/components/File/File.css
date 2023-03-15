@@ -1,6 +1,5 @@
 main {
     transition: 0.5s;
-    border: 1px solid red;
     display: grid;
     grid-template-rows: auto 1fr;
 }
@@ -25,24 +24,10 @@ main.close {
     margin: 1rem;
   }
 
-/*
-.content {
-    width: 90%;
-    height: 90vh;
-    padding: 1rem;
-    border: none;
-    outline: none;
-    resize: none;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #333;
-    overflow: hidden;
-  }*/
-
   .content {
     margin: 1rem;
     width: 97%;
-    height: calc(90vh - 4rem); /* subtract the total margin of the title and content */
+    height: calc(90vh - 4rem); 
     padding: 1rem;
     border: none;
     outline: none;

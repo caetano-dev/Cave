@@ -11,4 +11,3 @@ To-do:
   - Create a function and route to edit the filecontent.
 - Fix the last test function for the database.
 - Fix the sidebar that does not have a scroll
-

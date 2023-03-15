@@ -15,7 +15,7 @@ import (
 	"strings"
 
 	"github.com/drull1000/notetaking-app/src/database"
-	"github.com/drull1000/notetaking-app/src/utils"
+	u "github.com/drull1000/notetaking-app/src/utils"
 )
 
 // Env struct is the database env
@@ -82,36 +82,11 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if file.ID == 0 {
-		fmt.Fprintf(w, "not found")
+		fmt.Fprintf(w, "Not found.")
 		return
 	}
 
 	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
-}
-
-func fileExists(filesystemPath string) bool {
-    if _, err := os.Stat(filesystemPath); os.IsNotExist(err) {
-        return false // file does not exist
-    }
-    return true // file exists
-}
-
-func uniqueFilesystemPath(filesystemPath string) string {
-    if !fileExists(filesystemPath) {
-        return filesystemPath // file does not exist, return original filename
-    }
-
-    base := filesystemPath[:len(filesystemPath)-len(filepath.Ext(filesystemPath))] // remove extension
-    ext := filepath.Ext(filesystemPath) // get extension
-    i := 1
-
-    for {
-        newfilesystemPath := base + "_" + strconv.Itoa(i) + ext
-          if !fileExists(newfilesystemPath) {
-              return newfilesystemPath // unique filename found
-        }
-        i++
-    }
 }
 
 // FilesUpload is the function that uploads a file.
@@ -138,7 +113,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	if newFilename == "" {
-		newFilename = handler.Filename
+		newFilename = handler.Filename //"raw" name
 	}
 
 	files_path := filepath.Join(".", "files")
@@ -147,11 +122,8 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
 		return
 	}
-	// Create `files` if not exist
-	filesystemPath := filepath.Join(files_path, handler.Filename)
-  fmt.Println("before: ", filesystemPath)
-  filesystemPath = uniqueFilesystemPath(filesystemPath)
-  fmt.Println("after: ", filesystemPath)
+
+  filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, handler.Filename))
 
 	dst, err := os.Create(filesystemPath)
 	if err != nil {
@@ -257,7 +229,6 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&requestBody)
 
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
