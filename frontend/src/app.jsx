@@ -62,6 +62,7 @@ export function App() {
         filename={filename}
         id={id}
         content={content}
+        setContent={setContent}
       />
     </>
   );

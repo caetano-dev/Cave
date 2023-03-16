@@ -81,23 +81,20 @@ func Insert(db *sql.DB, file File) (int64, error) {
 	return id, nil
 }
 
-// UpdateFile is the function that updated the file in the database
-// func UpdateFile(db *sql.DB, id int64, file File) error {
-// 	stmt, err := db.Prepare("UPDATE files SET hash=?, filename=?, tags=? WHERE uid=?")
+// UpdateFile is the function that updated the file in the database. It receives the file ID and the file structure
+// func UpdateFileContent(db *sql.DB, id int64, file File) error {
+// 	stmt, err := db.Prepare("UPDATE files SET content=? WHERE uid=?")
 // 	if err != nil {
 // 		return err
 // 	}
 
-// 	tags := file.tags
-// 	tagsString := strings.Join(tags, ";")
-
-// 	_, err = stmt.Exec(file.Hash, file.Filename, tagsString, id)
+// 	_, err = stmt.Exec(File.content, id)
 // 	if err != nil {
 // 		return err
 // 	}
 
 //	return nil
-// }
+//}
 
 // DeleteByID is the function that deletes the file in the database.
 func DeleteByID(db *sql.DB, id int64) error {
