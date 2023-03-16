@@ -2,10 +2,9 @@ import React, {useEffect, useState} from 'react';
 import './File.css';
 
 function File({ toggle, filename, id, content, setContent}) {
-  const [textareaValue, setTextareaValue] = useState(content);
 
   function handleTextareaChange(event){
-    setTextareaValue(event.target.value);
+    setContent(event.target.value);
   }
 
   const editContent = async (id) => {
@@ -17,7 +16,7 @@ function File({ toggle, filename, id, content, setContent}) {
         },
         body: JSON.stringify({
           ID: id,
-          Content: textareaValue,
+          Content: content,
         }),
       });
     } catch (error) {
@@ -25,12 +24,11 @@ function File({ toggle, filename, id, content, setContent}) {
     }
   };
 
-
   useEffect(() => {
     function handleKeyDown(event){
       if(event.ctrlKey && event.key === 's'){
         event.preventDefault();
-        setContent(textareaValue)
+        setContent(content)
         editContent(id)
       }
     }
@@ -38,8 +36,7 @@ function File({ toggle, filename, id, content, setContent}) {
     return ()=>{
       document.removeEventListener('keydown', handleKeyDown)
     }
-  },[textareaValue]);
-
+  },[content]);
 
   return (
     <main className={toggle}>
