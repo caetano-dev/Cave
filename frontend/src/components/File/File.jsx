@@ -38,10 +38,14 @@ function File({ toggle, filename, id, content, setContent}) {
     }
   },[content]);
 
+  useEffect(() =>{
+    setContent('');
+  }, [id])
+
   return (
     <main className={toggle}>
       <h1 className='title'>{filename}</h1>
-      <textarea className='content' onChange={handleTextareaChange}>{content}</textarea>
+      <textarea className='content' onChange={handleTextareaChange} value={content}/>
     </main>
   );
 }

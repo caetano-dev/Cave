@@ -42,6 +42,7 @@ export function App() {
   useEffect(() => {
     if (id) {
       console.log("fetching content for id " + id);
+      setContent("")
       fetchContent(id);
       console.log("content app.jsx: "+ content);
     }
