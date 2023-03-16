@@ -19,7 +19,7 @@ function SideBar({ toggle, toggleState, data, setFilename, setId }) {
   );
   const renderNode = (content) => (
     <>
-      {content.type == "folder" ? renderFolder(content) : renderFile(content)}
+      {content.type === "folder" ? renderFolder(content) : renderFile(content)}
     </>
   );
 

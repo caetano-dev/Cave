@@ -5,9 +5,9 @@ import File from "./components/File/File";
 import "./app.css";
 
 export function App() {
-  const [toggle, setToggle] = useState("open"); //open/close
+  const [toggle, setToggle] = useState("open");
   const toggleState = () =>
-    toggle == "open" ? setToggle("close") : setToggle("open");
+    toggle === "open" ? setToggle("close") : setToggle("open");
 
   const [filename, setFilename] = useState("");
   const [data, setData] = useState([]);
@@ -31,9 +31,13 @@ export function App() {
           id,
         }),
       });
-      const data = await response.json();
-      setContent(data.Content);
-      console.log("data content: "+data.Content)
+      if (response.status === 200){
+        const data = await response.json();
+        setContent(data.Content);
+        console.log("data content: "+data.Content)
+      } else{
+        console.log(`Failed to fetch content for id ${id}`)
+      }
     } catch (error) {
       console.error(error);
     }
@@ -42,9 +46,7 @@ export function App() {
   useEffect(() => {
     if (id) {
       console.log("fetching content for id " + id);
-      setContent("")
       fetchContent(id);
-      console.log("content app.jsx: "+ content);
     }
   }, [id]);
 

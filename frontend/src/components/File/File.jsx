@@ -19,28 +19,29 @@ function File({ toggle, filename, id, content, setContent}) {
           Content: content,
         }),
       });
+      if (!response.ok){
+        throw new Error("Failed to edit file content")
+      }
     } catch (error) {
       console.error(error);
+      //handle error here. We can display a message to the user.
     }
   };
 
   useEffect(() => {
-    function handleKeyDown(event){
+    function handleSaveShortcutKeyDown(event){
       if(event.ctrlKey && event.key === 's'){
         event.preventDefault();
-        setContent(content)
         editContent(id)
+        setContent(content)
+        console.log("content updated: "+content)
       }
     }
-    document.addEventListener("keydown", handleKeyDown)
+    document.addEventListener("keydown", handleSaveShortcutKeyDown)
     return ()=>{
-      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keydown', handleSaveShortcutKeyDown)
     }
   },[content]);
-
-  useEffect(() =>{
-    setContent('');
-  }, [id])
 
   return (
     <main className={toggle}>
