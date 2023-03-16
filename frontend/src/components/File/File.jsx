@@ -9,7 +9,6 @@ function File({ toggle, filename, id, content, setContent}) {
   }
 
   const editContent = async (id) => {
-    console.log("making request to the server.")
     try {
       const response = await fetch("http://localhost:3000/fileEditContent", {
         method: "PUT",
@@ -45,7 +44,7 @@ function File({ toggle, filename, id, content, setContent}) {
   return (
     <main className={toggle}>
       <h1 className='title'>{filename}</h1>
-      <textarea autofocus className='content' value={textareaValue} onChange={handleTextareaChange}>{content}</textarea>
+      <textarea className='content' onChange={handleTextareaChange}>{content}</textarea>
     </main>
   );
 }
