@@ -287,37 +287,46 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
-	header := w.Header()
+  header := w.Header()
 
-	header.Add("Access-Control-Allow-Origin", "*")
-	header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
-	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-	header.Add("Content-Type", "application/json")
+  header.Add("Access-Control-Allow-Origin", "*")
+  header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
+  header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+  header.Add("Content-Type", "application/json")
 
-	w.WriteHeader(http.StatusOK)
+  w.WriteHeader(http.StatusOK)
 
-	if r.Method != http.MethodPut {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-  fmt.Println("route hit")
+  if r.Method != http.MethodPut {
+    http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+    return
+  }
 
-  fmt.Println(r.Body)
-
-	type requestBody struct {
-		ID      int64    `json:"id"`
+  type requestBody struct {
+    ID      int64    `json:"id"`
     Content string `json:"content"`
-	}
-	var body requestBody
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-  fmt.Println(body.Content)
-  //TODO:write the content to the file. We'll need to get the filepath from the frontend, or create a function
-  //that returns it from the database when an ID is given.
+  }
+  var body requestBody
+  err := json.NewDecoder(r.Body).Decode(&body)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusBadRequest)
+    return
+  }
 
+  file, err := database.GetByID(env.DB, body.ID)
+
+  if err != nil {
+    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+    return
+  }
+
+  if file.ID == 0 {
+    fmt.Fprintf(w, "Not found.")
+    return
+  }
+
+  if err := os.WriteFile(file.Filepath, []byte(body.Content), 0666); err != nil {
+    log.Fatal(err)
+  }
 }
 
 func (env *Env) HealthCheck(w http.ResponseWriter, r *http.Request) {

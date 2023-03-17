@@ -15,8 +15,8 @@ function File({ toggle, filename, id, content, setContent}) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ID: id,
-          Content: content,
+          id: id,
+          content: content,
         }),
       });
       if (!response.ok){
