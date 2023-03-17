@@ -1,11 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import './File.css';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 function File({ toggle, filename, id, content, setContent}) {
-
-  function handleTextareaChange(event){
-    setContent(event.target.value);
-  }
 
   const editContent = async (id) => {
     try {
@@ -46,7 +44,7 @@ function File({ toggle, filename, id, content, setContent}) {
   return (
     <main className={toggle}>
       <h1 className='title'>{filename}</h1>
-      <textarea className='content' onChange={handleTextareaChange} value={content}/>
+      <ReactQuill theme="snow" value={content} onChange={setContent} />
     </main>
   );
 }
