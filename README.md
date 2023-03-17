@@ -7,10 +7,9 @@ Run the frontend with `npm run dev`.
 
 To-do:
 
-- Allow user to save the file to the server with CTRL+S.
-  - Being developed. We need to create a function that returns the filepath when an ID is passed, or get it from the frontend.
 - Fix the last test function for the database.
-- Fix the sidebar that does not have a scroll
+- Fix the sidebar that does not have a scroll.
+- Let user create and delete files.
  
 
 ---
