@@ -22,12 +22,12 @@ main.close {
 
 .title {
     margin: 1rem;
-  }
+}
 
-  .content {
+.content {
     margin: 1rem;
     width: 97%;
-    height: calc(90vh - 4rem); 
+    height: calc(90vh - 4rem);
     padding: 1rem;
     border: none;
     outline: none;
@@ -36,4 +36,4 @@ main.close {
     line-height: 1.5;
     color: #333;
     overflow-y: auto;
-  }
+}
