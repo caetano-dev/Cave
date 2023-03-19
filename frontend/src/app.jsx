@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "./components/SideBar/SideBar";
 import File from "./components/File/File";
+import Welcome from "./components/Welcome/Welcome"
 
 import "./app.css";
 
@@ -63,14 +64,16 @@ export function App() {
         setId={setId}
         setTags={setTags}
       />
-      <File
-        toggle={toggle}
-        filename={filename}
-        id={id}
-        tags={tags}
-        content={content}
-        setContent={setContent}
-      />
+      {filename ? (
+        <File
+          toggle={toggle}
+          filename={filename}
+          id={id}
+          tags={tags}
+          content={content}
+          setContent={setContent}
+        />
+      ) : <Welcome toggle={toggle}/>}
     </>
   );
 }

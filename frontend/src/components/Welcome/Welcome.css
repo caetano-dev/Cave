@@ -1,0 +1,11 @@
+.welcome{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
+    margin-top: 30vh;
+}
+
+.welcome img{
+    width: 5rem;
+}

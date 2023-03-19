@@ -20,7 +20,7 @@ To-do (for now):
 - Fix the last test function for the database.
 - Fix the sidebar that does not have a scroll.
 - Let user create and delete files.
-- Let user change file names
+- Let user change file names.
 - Create a search bar where the user can look for files based on the filename and tags.
 
 ---
