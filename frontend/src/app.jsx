@@ -12,6 +12,7 @@ export function App() {
   const [filename, setFilename] = useState("");
   const [data, setData] = useState([]);
   const [id, setId] = useState(null);
+  const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
 
   useEffect(() => {
@@ -31,12 +32,12 @@ export function App() {
           id,
         }),
       });
-      if (response.status === 200){
+      if (response.status === 200) {
         const data = await response.json();
         setContent(data.Content);
-        console.log("data content: "+data.Content)
-      } else{
-        console.log(`Failed to fetch content for id ${id}`)
+        console.log("data content: " + data.Content);
+      } else {
+        console.log(`Failed to fetch content for id ${id}`);
       }
     } catch (error) {
       console.error(error);
@@ -60,11 +61,13 @@ export function App() {
         data={data}
         setFilename={setFilename}
         setId={setId}
+        setTags={setTags}
       />
       <File
         toggle={toggle}
         filename={filename}
         id={id}
+        tags={tags}
         content={content}
         setContent={setContent}
       />

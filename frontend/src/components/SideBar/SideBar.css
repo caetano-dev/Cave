@@ -19,9 +19,12 @@
 
 .sidebar .file {
   color: #f5f5f5;
-
   display: block;
   transition: 0.3s;
+}
+
+.file:hover{
+  cursor: pointer
 }
 
 .sidebar.open {

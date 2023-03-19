@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "./File.css";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import modules from "../../modules/quill";
+import TagsList from "../TagList/TagsList";
 
-function File({ toggle, filename, id, content, setContent }) {
+function File({ toggle, filename, id, content, setContent, tags }) {
   const editContent = async (id) => {
     try {
       const response = await fetch("http://localhost:3000/fileEditContent", {
@@ -40,28 +42,12 @@ function File({ toggle, filename, id, content, setContent }) {
     };
   }, [content]);
 
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, 4, 5, 6, false] }, { font: [] }],
-      [{ size: [] }],
-      [{ color: [] }, { background: [] }],
-      ["bold", "italic", "underline", "strike", "blockquote", "code-block"],
-      [
-        { list: "ordered" },
-        { list: "bullet" },
-        { indent: "-1" },
-        { indent: "+1" },
-        { direction: "rtl" },
-      ],
-      ["link", "image", "video"],
-      ["clean"],
-    ],
-  };
-
   return (
     <main className={toggle}>
       <h1 className="title">{filename}</h1>
+      <TagsList tags={tags} />
       <ReactQuill
+        className="quill"
         modules={modules}
         theme="snow"
         value={content}
