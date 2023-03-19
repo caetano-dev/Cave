@@ -2,15 +2,26 @@
 
 Work in progress.
 
+## Running the project
+
+Install the dependencies:
+
+From the backend folder:
+`go mod tidy`
+
+From the frontend folder:
+`npm install`
+
 Run the backend with `DATABASE_NAME=database.db go run src/main.go` and upload the files with the `index.html` page from the backend folder.
 Run the frontend with `npm run dev`.
 
-To-do:
+To-do (for now):
 
 - Fix the last test function for the database.
 - Fix the sidebar that does not have a scroll.
 - Let user create and delete files.
- 
+- Let user change file names
+- Create a search bar where the user can look for files based on the filename and tags.
 
 ---
 
