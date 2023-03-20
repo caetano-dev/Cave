@@ -44,7 +44,7 @@ function File({ toggle, filename, id, content, setContent, tags }) {
 
   return (
     <main className={toggle}>
-      <h1 className="title">{filename}</h1>
+      <input className="title" placeholder={filename} value={filename}/> 
       <TagsList tags={tags} />
       <ReactQuill
         className="quill"

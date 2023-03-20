@@ -18,7 +18,11 @@ main.close {
 }
 
 .title {
+    color: #213547;
     margin: 1rem;
+    outline: none;
+    border: none;
+    font-size: 3rem;
 }
 
 .content {
