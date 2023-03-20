@@ -1,4 +1,4 @@
-.welcome{
+.welcome {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
@@ -6,6 +6,6 @@
     margin-top: 30vh;
 }
 
-.welcome img{
+.welcome img {
     width: 5rem;
 }

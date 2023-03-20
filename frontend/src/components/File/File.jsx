@@ -42,9 +42,10 @@ function File({
   };
 
   function handleEditFilename(event) {
-    setFilename(event.target.value);
-    editFile(id, "filename", filename);
-    console.log("filename updated: " + filename);
+    const newFilename = event.target.value;
+    setFilename(newFilename);
+    editFile(id, "filename", newFilename);
+    console.log("filename updated: " + newFilename);
   }
 
   useEffect(() => {

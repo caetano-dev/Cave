@@ -15,7 +15,10 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
   };
 
   const renderFile = (file) => (
-    <li className="file" onClick={() => setVariables(file.filename , file.id, file.tags)}>
+    <li
+      className="file"
+      onClick={() => setVariables(file.filename, file.id, file.tags)}
+    >
       {file.filename}
     </li>
   );
@@ -26,12 +29,14 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
   );
 
   return (
-      <aside className={"sidebar " + toggle}>
-        <button className="sideBarButton" onClick={toggleState}>
+    <aside className={"sidebar " + toggle}>
+      <div>
+        <button className={"sideBarButton " + toggle} onClick={toggleState}>
           ☰
         </button>
-        <ul>{data.map(renderNode)}</ul>
-      </aside>
+      </div>
+      <ul>{data.map(renderNode)}</ul>
+    </aside>
   );
 }
 

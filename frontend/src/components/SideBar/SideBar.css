@@ -2,42 +2,51 @@
   position: fixed;
   top: 0;
   left: 0;
-
   height: 100%;
-
   background-color: #111;
-
   overflow-x: hidden;
   transition: 0.5s;
-  padding: 1.7rem 0rem 0rem 0rem
+  padding: 1.7rem 0rem 0rem 0rem;
+  display: flex;
 }
 
 .sidebar .folder {
   color: gray;
-  transition: 0.3s;
 }
 
 .sidebar .file {
   color: #f5f5f5;
   display: block;
-  transition: 0.3s;
+  padding: 0rem 0rem 0rem .7rem;
 }
 
-.file:hover{
-  cursor: pointer
+.file:hover {
+  cursor: pointer;
+  background-color: #303030;
+}
+
+.sideBarButton {
+  border-radius: 0px;
 }
 
 .sidebar.open {
   width: 200px;
 }
 
+.sidebar.open>div {
+  display: flex;
+  width: 200px;
+  position: fixed;
+  justify-content: right;
+  top: 0px;
+  font-size: 0.8rem;
+}
+
 .sidebar.close {
   width: 0px;
 }
 
-.sideBarButton {
+.sidebar.close>div {
   position: fixed;
-  top: 0px;
-
-  font-size: 0.8rem;
+  top: 0;
 }

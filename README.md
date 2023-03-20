@@ -1,4 +1,4 @@
-# Notetaking app
+🗒️# Notetaking app
 
 Work in progress.
 
@@ -17,12 +17,15 @@ Run the frontend with `npm run dev`.
 
 To-do (for now):
 
+🗒️
 - Fix the last test function for the database.
 - Fix the sidebar that does not have a scroll.
 - Let user create and delete files.
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
 
+💅
+- Add an emoji picker.
 ---
 
 ### What are we building?
