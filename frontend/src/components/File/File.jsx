@@ -5,21 +5,35 @@ import "react-quill/dist/quill.snow.css";
 import modules from "../../modules/quill";
 import TagsList from "../TagList/TagsList";
 
-function File({ toggle, filename, id, content, setContent, tags }) {
-  const editContent = async (id) => {
+function File({
+  toggle,
+  filename,
+  setFilename,
+  id,
+  content,
+  setContent,
+  tags,
+}) {
+  const editFile = async (id, field, value) => {
     try {
-      const response = await fetch("http://localhost:3000/fileEditContent", {
+      let url;
+      if (field === "content") {
+        url = "http://localhost:3000/fileEditContent";
+      } else if (field === "filename") {
+        url = "http://localhost:3000/fileEditName";
+      }
+      const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           id: id,
-          content: content,
+          value: value,
         }),
       });
       if (!response.ok) {
-        throw new Error("Failed to edit file content");
+        throw new Error("Operation failed");
       }
     } catch (error) {
       console.error(error);
@@ -27,12 +41,18 @@ function File({ toggle, filename, id, content, setContent, tags }) {
     }
   };
 
+  function handleEditFilename(event) {
+    setFilename(event.target.value);
+    editFile(id, "filename", filename);
+    console.log("filename updated: " + filename);
+  }
+
   useEffect(() => {
     function handleSaveShortcutKeyDown(event) {
       if (event.ctrlKey && event.key === "s") {
         event.preventDefault();
-        editContent(id);
         setContent(content);
+        editFile(id, "content", content);
         console.log("content updated: " + content);
       }
     }
@@ -44,7 +64,7 @@ function File({ toggle, filename, id, content, setContent, tags }) {
 
   return (
     <main className={toggle}>
-      <input className="title" placeholder={filename} value={filename}/> 
+      <input onChange={handleEditFilename} className="title" value={filename} />
       <TagsList tags={tags} />
       <ReactQuill
         className="quill"

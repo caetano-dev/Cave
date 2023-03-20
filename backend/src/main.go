@@ -35,6 +35,7 @@ func main() {
 	http.HandleFunc("/healthcheck", env.HealthCheck)
 	http.HandleFunc("/filecontent", env.FileContent)
 	http.HandleFunc("/fileEditContent", env.FileEditContent)
+	http.HandleFunc("/fileEditName", env.FileEditName)
 
 	fmt.Println("https://127.0.0.1:3000/")
 	http.ListenAndServe("127.0.0.1:3000", nil)

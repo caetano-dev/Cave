@@ -123,7 +123,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-  filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, handler.Filename))
+	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, handler.Filename))
 
 	dst, err := os.Create(filesystemPath)
 	if err != nil {
@@ -287,46 +287,84 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 }
 
 func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
-  header := w.Header()
+	header := w.Header()
 
-  header.Add("Access-Control-Allow-Origin", "*")
-  header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
-  header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-  header.Add("Content-Type", "application/json")
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+	header.Add("Content-Type", "application/json")
 
-  w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusOK)
 
-  if r.Method != http.MethodPut {
-    http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-    return
-  }
+	if r.Method != http.MethodPut {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
 
-  type requestBody struct {
-    ID      int64    `json:"id"`
-    Content string `json:"content"`
-  }
-  var body requestBody
-  err := json.NewDecoder(r.Body).Decode(&body)
-  if err != nil {
-    http.Error(w, err.Error(), http.StatusBadRequest)
-    return
-  }
+	type requestBody struct {
+		ID    int64  `json:"id"`
+		Value string `json:"value"`
+	}
+	var body requestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-  file, err := database.GetByID(env.DB, body.ID)
+	file, err := database.GetByID(env.DB, body.ID)
 
-  if err != nil {
-    http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-    return
-  }
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
-  if file.ID == 0 {
-    fmt.Fprintf(w, "Not found.")
-    return
-  }
+	if file.ID == 0 {
+		fmt.Fprintf(w, "Not found.")
+		return
+	}
 
-  if err := os.WriteFile(file.Filepath, []byte(body.Content), 0666); err != nil {
-    log.Fatal(err)
-  }
+	if err := os.WriteFile(file.Filepath, []byte(body.Value), 0666); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (env *Env) FileEditName(w http.ResponseWriter, r *http.Request) {
+	header := w.Header()
+
+	header.Add("Access-Control-Allow-Origin", "*")
+	header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
+	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
+	header.Add("Content-Type", "application/json")
+
+	w.WriteHeader(http.StatusOK)
+
+	if r.Method != http.MethodPut {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+
+	type requestBody struct {
+		ID    int64  `json:"id"`
+		Value string `json:"Value"`
+	}
+
+	var body requestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = database.UpdateFilename(env.DB, body.ID, body.Value)
+
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Println("file name updated.")
+
 }
 
 func (env *Env) HealthCheck(w http.ResponseWriter, r *http.Request) {

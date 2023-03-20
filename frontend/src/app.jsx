@@ -64,9 +64,10 @@ export function App() {
         setId={setId}
         setTags={setTags}
       />
-      {filename ? (
+      {id ? (
         <File
           toggle={toggle}
+          setFilename={setFilename}
           filename={filename}
           id={id}
           tags={tags}
