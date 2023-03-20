@@ -31,7 +31,7 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
   return (
     <aside className={"sidebar " + toggle}>
       <div>
-        <button className={"sideBarButton " + toggle} onClick={toggleState}>
+        <button className={"sideBarButton " + toggle} title="Toggle sidebar" onClick={toggleState}>
           ☰
         </button>
       </div>
