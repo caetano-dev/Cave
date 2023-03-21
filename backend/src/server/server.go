@@ -15,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/drull1000/notetaking-app/src/database"
+	s "github.com/drull1000/notetaking-app/src/structs"
 	u "github.com/drull1000/notetaking-app/src/utils"
 )
 
@@ -23,14 +24,9 @@ type Env struct {
 	DB *sql.DB
 }
 
-type responseFileContent struct {
-	FileInformation database.FileDatabase
-	Content         string
-}
-
 // FilesShowAll displays all of the files from the database.
 func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -58,7 +54,7 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 
 // FilesShow displays one file that is chosen by its ID
 func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
 	if r.Method != http.MethodGet {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -91,7 +87,7 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 
 // FilesUpload is the function that uploads a file.
 func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
 	if r.Method != http.MethodPost {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -104,7 +100,6 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	// Maximum upload of 10 MB files
 	r.ParseMultipartForm(10 << 20)
 
-	// Get handler for filename, size and headers
 	file, handler, err := r.FormFile("myFile")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
@@ -142,7 +137,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 	hashString := hex.EncodeToString(hash.Sum(nil))
 
-	f := database.File{
+	f := s.File{
 		Hash:     hashString,
 		Filename: newFilename,
 		Filepath: filesystemPath,
@@ -161,7 +156,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 // FilesDelete is the function that deletes a file.
 func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:5173")
+	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
 	if r.Method != "DELETE" {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
@@ -222,23 +217,23 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var requestBody struct {
-		ID int64 `json:"id"`
-	}
+	var bodyWithFileID s.RequestBody
 
-	err := json.NewDecoder(r.Body).Decode(&requestBody)
+	err := json.NewDecoder(r.Body).Decode(&bodyWithFileID)
+
+	fmt.Println(err)
 
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	if fmt.Sprint(requestBody.ID) == "" {
+	if fmt.Sprint(bodyWithFileID.ID) == "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	id, err := strconv.ParseInt(fmt.Sprint(requestBody.ID), 10, 64)
+	id, err := strconv.ParseInt(fmt.Sprint(bodyWithFileID.ID), 10, 64)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -270,7 +265,7 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 
 	content := string(byteContent[:])
 
-	response := &responseFileContent{
+	response := &s.ResponseFileContent{
 		FileInformation: f,
 		Content:         content,
 	}
@@ -301,11 +296,7 @@ func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type requestBody struct {
-		ID    int64  `json:"id"`
-		Value string `json:"value"`
-	}
-	var body requestBody
+	var body s.RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -344,12 +335,7 @@ func (env *Env) FileEditName(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type requestBody struct {
-		ID    int64  `json:"id"`
-		Value string `json:"Value"`
-	}
-
-	var body requestBody
+	var body s.RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -362,8 +348,6 @@ func (env *Env) FileEditName(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Println("file name updated.")
 
 }
 

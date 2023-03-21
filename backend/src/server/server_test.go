@@ -12,19 +12,6 @@ import (
 
 	"github.com/drull1000/notetaking-app/src/database"
 )
-
-func TestEnv_HealthCheck(t *testing.T) {
-	db, _ := database.InitDB(":memory:")
-	env := &Env{DB: db}
-
-	request := httptest.NewRequest(http.MethodGet, "/healthcheck", nil)
-	response := httptest.NewRecorder()
-	env.HealthCheck(response, request)
-	if response.Code != 200 {
-		t.Errorf("Expected %d, received %d", 200, response.Code)
-	}
-}
-
 func TestEnv_FilesUpload(t *testing.T) {
 	db, _ := database.InitDB(":memory:")
 	env := &Env{DB: db}

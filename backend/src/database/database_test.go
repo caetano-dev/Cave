@@ -7,6 +7,7 @@ import (
 
 	"testing"
 
+	s "github.com/drull1000/notetaking-app/src/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -32,7 +33,7 @@ func TestInitDB(t *testing.T) {
 
 func TestInsert(t *testing.T) {
 	db, _ := InitDB(":memory:")
-	file := File{
+	file := s.File{
 		Hash:     "hash1",
 		Type:     "file",
 		Filename: "file1.txt",
@@ -42,7 +43,7 @@ func TestInsert(t *testing.T) {
 
 	type args struct {
 		db   *sql.DB
-		file File
+		file s.File
 	}
 	tests := []struct {
 		name    string
@@ -91,7 +92,7 @@ func TestDeleteByID(t *testing.T) {
 	defer db.Close()
 
 	// insert a test file into the database
-	file := File{
+	file := s.File{
 		Hash:     "hash1",
 		Type:     "file",
 		Filename: "file1.txt",
@@ -129,7 +130,7 @@ func TestGetByID_ValidID(t *testing.T) {
 	defer db.Close()
 
 	// insert a file into the database
-	file := File{
+	file := s.File{
 		Hash:     "abc123",
 		Type:     "file",
 		Filename: "file.txt",
@@ -149,7 +150,7 @@ func TestGetByID_ValidID(t *testing.T) {
 	}
 
 	// verify that the file was retrieved correctly
-	expectedFile := FileDatabase{
+	expectedFile := s.FileDatabase{
 		ID:        1,
 		Hash:      "abc123",
 		Type:      "file",
@@ -172,8 +173,8 @@ func TestGetAll(t *testing.T) {
 	defer db.Close()
 
 	// insert test data into the database
-	file1 := &File{Hash: "hash1", Type: "file", Filename: "file1.txt", Filepath: "files/file1.txt", Tags: []string{"tag1", "tag2"}}
-	file2 := &File{Hash: "hash2", Type: "file", Filename: "file2.txt", Filepath: "files/file2.txt", Tags: []string{"tag3", "tag4"}}
+	file1 := &s.File{Hash: "hash1", Type: "file", Filename: "file1.txt", Filepath: "files/file1.txt", Tags: []string{"tag1", "tag2"}}
+	file2 := &s.File{Hash: "hash2", Type: "file", Filename: "file2.txt", Filepath: "files/file2.txt", Tags: []string{"tag3", "tag4"}}
 	_, err = Insert(db, *file1)
 
 	if err != nil {

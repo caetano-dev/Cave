@@ -5,29 +5,9 @@ import (
 	"log"
 	"strings"
 
+	s "github.com/drull1000/notetaking-app/src/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-// TODO: Implement sha256 hash to compare files
-// File is the struct for the file the user is going to upload.
-type File struct {
-	Hash     string
-	Type     string
-	Filename string
-	Filepath string
-	Tags     []string
-}
-
-// FileDatabase is the structure of the file in the database
-type FileDatabase struct {
-	ID        int64    `json:"id"`
-	Hash      string   `json:"hash"`
-	Type      string   `json:"type"`
-	Filename  string   `json:"filename"`
-	Filepath  string   `json:"filepath"`
-	Tags      []string `json:"tags"`
-	CreatedAt string   `json:"created_at"`
-}
 
 // InitDB is the function that initiates the database.
 func InitDB(name string) (*sql.DB, error) {
@@ -59,7 +39,7 @@ func InitDB(name string) (*sql.DB, error) {
 }
 
 // Insert filename and tags. This does not upload the file, it just inserts it in the DB.
-func Insert(db *sql.DB, file File) (int64, error) {
+func Insert(db *sql.DB, file s.File) (int64, error) {
 	stmt, err := db.Prepare("INSERT INTO files(hash, type, filename, filepath, tags) values(?, ?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
@@ -112,10 +92,10 @@ func DeleteByID(db *sql.DB, id int64) error {
 }
 
 // GetByID is the function that gets a file by ID from the database.
-func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
+func GetByID(db *sql.DB, uid int64) (s.FileDatabase, error) {
 	row := db.QueryRow("SELECT * FROM files WHERE uid = $1", uid)
 
-	file := new(FileDatabase)
+	file := new(s.FileDatabase)
 	var tags string // temporary variable to hold string value of "tags" column
 	err := row.Scan(&file.ID, &file.Hash, &file.Type, &file.Filename, &file.Filepath, &tags, &file.CreatedAt)
 	file.Tags = strings.Split(tags, ";")
@@ -129,16 +109,16 @@ func GetByID(db *sql.DB, uid int64) (FileDatabase, error) {
 }
 
 // GetAll is the function that gets all the files from the database.
-func GetAll(db *sql.DB) ([]*FileDatabase, error) {
+func GetAll(db *sql.DB) ([]*s.FileDatabase, error) {
 	rows, err := db.Query("SELECT * FROM files")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	files := make([]*FileDatabase, 0)
+	files := make([]*s.FileDatabase, 0)
 	for rows.Next() {
-		file := new(FileDatabase)
+		file := new(s.FileDatabase)
 		var tags string // temporary variable to hold string value of "tags" column
 		err := rows.Scan(&file.ID, &file.Hash, &file.Type, &file.Filename, &file.Filepath, &tags, &file.CreatedAt)
 		if err != nil {

@@ -9,15 +9,13 @@ import (
 
 	"github.com/drull1000/notetaking-app/src/database"
 	"github.com/drull1000/notetaking-app/src/server"
+	s "github.com/drull1000/notetaking-app/src/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type Config struct {
-	Database string
-}
 
 func main() {
-	var c Config
+	var c s.Config
 	flag.StringVar(&c.Database, "database", os.Getenv("DATABASE_NAME"), "database name")
 	flag.Parse()
 
@@ -32,7 +30,6 @@ func main() {
 	http.HandleFunc("/files/show", env.FilesShow)
 	http.HandleFunc("/files/upload", env.FilesUpload)
 	http.HandleFunc("/files/delete", env.FilesDelete)
-	http.HandleFunc("/healthcheck", env.HealthCheck)
 	http.HandleFunc("/filecontent", env.FileContent)
 	http.HandleFunc("/fileEditContent", env.FileEditContent)
 	http.HandleFunc("/fileEditName", env.FileEditName)
