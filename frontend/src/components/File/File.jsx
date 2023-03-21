@@ -45,7 +45,6 @@ function File({
     const newFilename = event.target.value;
     setFilename(newFilename);
     editFile(id, "filename", newFilename);
-    console.log("filename updated: " + newFilename);
   }
 
   useEffect(() => {
