@@ -30,12 +30,22 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
 
   return (
     <aside className={"sidebar " + toggle}>
-      <div>
-        <button className={"sideBarButton " + toggle} title="Toggle sidebar" onClick={toggleState}>
-          ☰
-        </button>
-      </div>
-      <ul>{data.map(renderNode)}</ul>
+      {data.length > 0 ? (
+        <>
+          <div>
+            <button
+              className={"sideBarButton " + toggle}
+              title="Toggle sidebar"
+              onClick={toggleState}
+            >
+              ☰
+            </button>
+          </div>
+          <ul>{data.map(renderNode)}</ul>
+        </>
+      ) : (
+        <p style="color:white; margin: 0 0 0 1.5rem">You have no files.</p>
+      )}
     </aside>
   );
 }
