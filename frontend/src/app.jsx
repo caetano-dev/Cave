@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import SideBar from "./components/SideBar/SideBar";
 import File from "./components/File/File";
-import Welcome from "./components/Welcome/Welcome"
+import Welcome from "./components/Welcome/Welcome";
 
 import "./app.css";
 
@@ -17,9 +17,17 @@ export function App() {
   const [content, setContent] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:3000/files")
-      .then((response) => response.json())
-      .then((json) => setData(json));
+    const savedData = JSON.parse(localStorage.getItem("data"));
+    if (savedData) {
+      setData(savedData);
+    } else {
+      fetch("http://localhost:3000/files")
+        .then((response) => response.json())
+        .then((json) => {
+          setData(json);
+          localStorage.setItem("data", JSON.stringify(json));
+        });
+    }
   }, []);
 
   const fetchContent = async (id) => {
@@ -74,7 +82,9 @@ export function App() {
           content={content}
           setContent={setContent}
         />
-      ) : <Welcome toggle={toggle}/>}
+      ) : (
+        <Welcome toggle={toggle} />
+      )}
     </>
   );
 }
