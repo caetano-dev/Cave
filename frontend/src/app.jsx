@@ -18,51 +18,30 @@ export function App() {
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("data"));
-    if (savedData) {
-      setData(savedData);
-    } else {
-      fetch("http://localhost:3000/files")
-        .then((response) => response.json())
-        .then((json) => {
-          setData(json);
-          localStorage.setItem("data", JSON.stringify(json));
-        });
+    if (!navigator.onLine) {
+      setData(savedData.files);
+      return;
     }
+
+    fetch("http://localhost:3000/files")
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error("Server error: " + response.status);
+        }
+      })
+      .then((json) => {
+        setData(json.files);
+        localStorage.setItem("data", JSON.stringify(json));
+      })
+      .catch((error) => {
+        console.error(error);
+        setData(savedData.files);
+      });
   }, []);
 
-  const fetchContent = async (id) => {
-    try {
-      //TODO: make filecontent return the id of the files and get all the contents from all of them at once.
-      const response = await fetch("http://localhost:3000/filecontent", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id,
-        }),
-      });
-      if (response.status === 200) {
-        const data = await response.json();
-        setContent(data.Content);
-        console.log(data)
-        console.log("data content: " + data.Content);
-      } else {
-        console.log(`Failed to fetch content for id ${id}`);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  useEffect(() => {
-    if (id) {
-      console.log("fetching content for id " + id);
-      fetchContent(id);
-    }
-  }, [id]);
-
-  console.log(data);
+  console.log(data)
 
   return (
     <>
@@ -73,6 +52,7 @@ export function App() {
         setFilename={setFilename}
         setId={setId}
         setTags={setTags}
+        setContent={setContent}
       />
       {id ? (
         <File

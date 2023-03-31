@@ -30,7 +30,6 @@ func main() {
 	http.HandleFunc("/files/show", env.FilesShow)
 	http.HandleFunc("/files/upload", env.FilesUpload)
 	http.HandleFunc("/files/delete", env.FilesDelete)
-	http.HandleFunc("/filecontent", env.FileContent)
 	http.HandleFunc("/fileEditContent", env.FileEditContent)
 	http.HandleFunc("/fileEditName", env.FileEditName)
 

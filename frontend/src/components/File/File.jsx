@@ -15,30 +15,17 @@ function File({
   tags,
 }) {
   const editFile = async (id, field, value) => {
-    try {
-      let url;
-      if (field === "content") {
-        url = "http://localhost:3000/fileEditContent";
-      } else if (field === "filename") {
-        url = "http://localhost:3000/fileEditName";
-      }
-      const response = await fetch(url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          id: id,
-          value: value,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Operation failed");
-      }
-    } catch (error) {
-      console.error(error);
-      //handle error here. We can display a message to the user.
-    }
+    const host = "http://localhost:3000";
+    const url =
+      field === "content" ? `${host}/fileEditContent` : `${host}/fileEditName`;
+
+    const fetchParamns = {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, value }),
+    };
+
+    fetch(url, fetchParamns).catch(console.error);
   };
 
   function handleEditFilename(event) {

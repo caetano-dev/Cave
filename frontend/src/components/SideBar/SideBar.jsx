@@ -1,32 +1,13 @@
 import React from "react";
 import "./SideBar.css";
 
-function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
-  const renderFolder = (folder) => (
-    <li className="folder">
-      {folder.name} <ul>{folder.children.map(renderNode)}</ul>
-    </li>
-  );
-
-  const setVariables = (filename, id, tags) => {
+function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setContent }) {
+  const setVariables = (filename, id, tags, content) => {
     setFilename(filename);
     setId(id);
     setTags(tags);
+    setContent(content);
   };
-
-  const renderFile = (file) => (
-    <li
-      className="file"
-      onClick={() => setVariables(file.filename, file.id, file.tags)}
-    >
-      {file.filename}
-    </li>
-  );
-  const renderNode = (content) => (
-    <>
-      {content.type === "folder" ? renderFolder(content) : renderFile(content)}
-    </>
-  );
 
   return (
     <aside className={"sidebar " + toggle}>
@@ -41,13 +22,30 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags }) {
               ☰
             </button>
           </div>
-          <ul>{data.map(renderNode)}</ul>
+          <ul>
+            {data.map((files) => (
+              <li
+                className="file"
+                onClick={() =>
+                  setVariables(
+                    files.FileInformation.filename,
+                    files.FileInformation.id,
+                    files.FileInformation.tags,
+                    files.Content,
+                  )
+                }
+              >
+                <React.Fragment key={files.FileInformation.id}>
+                  <p>{files.FileInformation.filename}</p>
+                </React.Fragment>
+              </li>
+            ))}
+          </ul>
         </>
       ) : (
-        <p style="color:white; margin: 0 0 0 1.5rem">You have no files.</p>
+        <p style="color:white; margin: 0 0 0 1.5rem">You have no files</p>
       )}
     </aside>
   );
 }
-
 export default SideBar;

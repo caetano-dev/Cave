@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -33,14 +34,32 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files, err := database.GetAll(env.DB)
+	filesDatabase, err := database.GetAll(env.DB)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+	var files []s.ResponseFileContent
+	for _, fileDB := range filesDatabase {
+		content, err := ioutil.ReadFile(fileDB.Filepath)
+		if err != nil {
+			log.Fatal(err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		fileContent := s.ResponseFileContent{
+			FileInformation: *fileDB,
+			Content:         string(content),
+		}
 
-	fileBytes, err := json.Marshal(files)
+		files = append(files, fileContent)
+	}
+
+	allFiles := s.ResponseAllFiles{
+		Files: files,
+	}
+	fileBytes, err := json.Marshal(allFiles)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -48,7 +67,6 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-
 	w.Write(fileBytes)
 }
 
@@ -82,7 +100,7 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
+	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt) 
 }
 
 // FilesUpload is the function that uploads a file.
@@ -199,81 +217,6 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "File %s deleted successfully (id: %d)\n", file.Filename, file.ID)
-}
-
-// FileContent function opens a file and returns its content as a response
-func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
-	header := w.Header()
-
-	header.Add("Access-Control-Allow-Origin", "*")
-	header.Add("Access-Control-Allow-Methods", "DELETE, POST, GET, OPTIONS")
-	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-	header.Add("Content-Type", "application/json")
-
-	w.WriteHeader(http.StatusOK)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
-	var bodyWithFileID s.RequestBody
-
-	err := json.NewDecoder(r.Body).Decode(&bodyWithFileID)
-
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	if fmt.Sprint(bodyWithFileID.ID) == "" {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-
-	// get all files from database
-	files, err := database.GetAllFiles(env.DB)
-	if err != nil {
-		http.Error(w, "Failed to get files", http.StatusInternalServerError)
-		return
-	}
-
-	response := &s.ResponseAllFiles{
-		Files: make([]s.ResponseFileContent, len(files)),
-	}
-
-	for i, f := range files {
-		// open file
-		file, err := os.Open(f.Filepath)
-		if err != nil {
-			http.Error(w, "Failed to open file", http.StatusInternalServerError)
-			return
-		}
-		defer file.Close()
-
-		byteContent, err := io.ReadAll(file)
-		if err != nil {
-			http.Error(w, "Failed to read file", http.StatusInternalServerError)
-			return
-		}
-
-		content := string(byteContent[:])
-
-		response.Files[i] = s.ResponseFileContent{
-			FileInformation: f,
-			Content:         content,
-		}
-	}
-
-	// Set the content type and write the content to the response
-	fileBytes, err := json.Marshal(response)
-	if err != nil {
-		log.Fatal(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Write(fileBytes)
 }
 
 func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
