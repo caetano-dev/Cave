@@ -34,3 +34,7 @@ type ResponseFileContent struct {
 	FileInformation FileDatabase
 	Content         string
 }
+
+type ResponseAllFiles struct {
+	Files []ResponseFileContent `json:"files"`
+}

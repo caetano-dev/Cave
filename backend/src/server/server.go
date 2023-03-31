@@ -221,8 +221,6 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 
 	err := json.NewDecoder(r.Body).Decode(&bodyWithFileID)
 
-	fmt.Println(err)
-
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -233,41 +231,38 @@ func (env *Env) FileContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, err := strconv.ParseInt(fmt.Sprint(bodyWithFileID.ID), 10, 64)
+	// get all files from database
+	files, err := database.GetAllFiles(env.DB)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-	// get file data from database
-	f, err := database.GetByID(env.DB, id)
-	if err != nil {
-		http.Error(w, "File not found", http.StatusNotFound)
-		return
-	}
-	// open file
-	file, err := os.Open(f.Filepath)
-	if err != nil {
-		http.Error(w, "Failed to open file", http.StatusInternalServerError)
+		http.Error(w, "Failed to get files", http.StatusInternalServerError)
 		return
 	}
 
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	defer file.Close()
-
-	byteContent, err := io.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Failed to read file", http.StatusInternalServerError)
-		return
+	response := &s.ResponseAllFiles{
+		Files: make([]s.ResponseFileContent, len(files)),
 	}
 
-	content := string(byteContent[:])
+	for i, f := range files {
+		// open file
+		file, err := os.Open(f.Filepath)
+		if err != nil {
+			http.Error(w, "Failed to open file", http.StatusInternalServerError)
+			return
+		}
+		defer file.Close()
 
-	response := &s.ResponseFileContent{
-		FileInformation: f,
-		Content:         content,
+		byteContent, err := io.ReadAll(file)
+		if err != nil {
+			http.Error(w, "Failed to read file", http.StatusInternalServerError)
+			return
+		}
+
+		content := string(byteContent[:])
+
+		response.Files[i] = s.ResponseFileContent{
+			FileInformation: f,
+			Content:         content,
+		}
 	}
 
 	// Set the content type and write the content to the response

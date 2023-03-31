@@ -32,6 +32,7 @@ export function App() {
 
   const fetchContent = async (id) => {
     try {
+      //TODO: make filecontent return the id of the files and get all the contents from all of them at once.
       const response = await fetch("http://localhost:3000/filecontent", {
         method: "POST",
         headers: {
@@ -44,6 +45,7 @@ export function App() {
       if (response.status === 200) {
         const data = await response.json();
         setContent(data.Content);
+        console.log(data)
         console.log("data content: " + data.Content);
       } else {
         console.log(`Failed to fetch content for id ${id}`);

@@ -23,6 +23,7 @@ To-do (for now):
 - Let user create and delete files.
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
+- Finish trying to make filecontent function return a json with the contents and ids of all files.
 
 💅
 - Add an emoji picker.

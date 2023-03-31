@@ -134,3 +134,38 @@ func GetAll(db *sql.DB) ([]*s.FileDatabase, error) {
 
 	return files, nil
 }
+
+// GetAllFiles is the function that retrieves all files from the database.
+func GetAllFiles(db *sql.DB) ([]s.FileDatabase, error) {
+	rows, err := db.Query("SELECT * FROM files")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	files := make([]s.FileDatabase, 0)
+	for rows.Next() {
+		file := new(s.FileDatabase)
+		var tags string               // temporary variable to hold string value
+		file.Tags = make([]string, 0) // initialize slice for tags
+
+		err = rows.Scan(&file.ID, &file.Filename, &file.Filepath, &tags, &file.CreatedAt)
+		if err != nil {
+			return nil, err
+		}
+
+		// parse tags string and add to file.Tags slice
+		if tags != "" {
+			file.Tags = strings.Split(tags, ",")
+		}
+
+		files = append(files, *file)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return files, nil
+
+}
