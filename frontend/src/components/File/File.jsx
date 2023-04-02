@@ -29,11 +29,14 @@ function File({
     };
 
     fetch(url, fetchParamns).catch(console.error);
+    setData(data);
+    localStorage.setItem("data", JSON.stringify(data));
   };
 
   function handleEditFilename(event) {
     const newFilename = event.target.value;
     setFilename(newFilename);
+    data[fileIndex].FileInformation.filename = newFilename;
     editFileInServer(id, "filename", newFilename);
   }
 
@@ -44,8 +47,6 @@ function File({
         setContent(content);
         data[fileIndex].Content = content;
         editFileInServer(id, "content", content);
-        setData(data);
-        localStorage.setItem("data", JSON.stringify(data));
       }
     }
     document.addEventListener("keydown", handleSaveShortcutKeyDown);

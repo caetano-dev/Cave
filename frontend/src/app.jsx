@@ -18,7 +18,8 @@ export function App() {
   const [fileIndex, setFileIndex] = useState("");
 
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem("data"));
+    const savedData = JSON.parse(localStorage.getItem("data")) || {files: []};
+    console.log(savedData)
     if (!navigator.onLine) {
       setData(savedData.files);
       return;
@@ -41,7 +42,7 @@ export function App() {
         setData(savedData.files);
       });
   }, []);
-    
+console.log(data)
 
   return (
     <>
