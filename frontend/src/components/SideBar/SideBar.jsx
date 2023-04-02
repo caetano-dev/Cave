@@ -1,12 +1,13 @@
 import React from "react";
 import "./SideBar.css";
 
-function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setContent }) {
-  const setVariables = (filename, id, tags, content) => {
+function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setContent, setFileIndex }) {
+  const setVariables = (filename, id, tags, content, index) => {
     setFilename(filename);
     setId(id);
     setTags(tags);
     setContent(content);
+    setFileIndex(index)
   };
 
   return (
@@ -23,7 +24,7 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setCo
             </button>
           </div>
           <ul>
-            {data.map((files) => (
+            {data.map((files, index) => (
               <li
                 className="file"
                 onClick={() =>
@@ -32,6 +33,7 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setCo
                     files.FileInformation.id,
                     files.FileInformation.tags,
                     files.Content,
+                    index,
                   )
                 }
               >

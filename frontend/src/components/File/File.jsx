@@ -12,9 +12,12 @@ function File({
   id,
   content,
   setContent,
+  setData,
+  data,
   tags,
+  fileIndex,
 }) {
-  const editFile = async (id, field, value) => {
+  const editFileInServer = async (id, field, value) => {
     const host = "http://localhost:3000";
     const url =
       field === "content" ? `${host}/fileEditContent` : `${host}/fileEditName`;
@@ -31,7 +34,7 @@ function File({
   function handleEditFilename(event) {
     const newFilename = event.target.value;
     setFilename(newFilename);
-    editFile(id, "filename", newFilename);
+    editFileInServer(id, "filename", newFilename);
   }
 
   useEffect(() => {
@@ -39,8 +42,10 @@ function File({
       if (event.ctrlKey && event.key === "s") {
         event.preventDefault();
         setContent(content);
-        editFile(id, "content", content);
-        console.log("content updated: " + content);
+        data[fileIndex].Content = content;
+        editFileInServer(id, "content", content);
+        setData(data);
+        localStorage.setItem("data", JSON.stringify(data));
       }
     }
     document.addEventListener("keydown", handleSaveShortcutKeyDown);

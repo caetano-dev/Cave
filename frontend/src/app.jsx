@@ -15,6 +15,7 @@ export function App() {
   const [id, setId] = useState(null);
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
+  const [fileIndex, setFileIndex] = useState("");
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("data"));
@@ -40,8 +41,7 @@ export function App() {
         setData(savedData.files);
       });
   }, []);
-
-  console.log(data)
+    
 
   return (
     <>
@@ -53,6 +53,7 @@ export function App() {
         setId={setId}
         setTags={setTags}
         setContent={setContent}
+        setFileIndex={setFileIndex}
       />
       {id ? (
         <File
@@ -62,7 +63,10 @@ export function App() {
           id={id}
           tags={tags}
           content={content}
+          data={data}
+          setData={setData}
           setContent={setContent}
+          fileIndex={fileIndex}
         />
       ) : (
         <Welcome toggle={toggle} />
