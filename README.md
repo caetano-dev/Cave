@@ -1,4 +1,4 @@
-🗒️# Notetaking app
+# 🗒️Notetaking app
 
 Work in progress.
 
@@ -15,9 +15,8 @@ From the frontend folder:
 Run the backend with `DATABASE_NAME=database.db go run src/main.go` and upload the files with the `index.html` page from the backend folder.
 Run the frontend with `npm run dev`.
 
-To-do (for now):
+## To-do (for now):
 
-🗒️
 - Fix the last test function for the database.
 - Fix the sidebar that does not have a scroll.
 - Let user create and delete files.
@@ -25,9 +24,7 @@ To-do (for now):
 - Make it local first.
 - Save content and filename offline.
     - content/filename is saved, but when edited offline, the app breaks.
-
-💅
-- Add an emoji picker.
+- Add an emoji picker💅
 ---
 
 ### What are we building?
