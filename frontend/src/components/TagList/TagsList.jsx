@@ -1,5 +1,6 @@
 import React from "react";
 import "./TagsList.css";
+import PropTypes from 'prop-types'
 
 function TagsList({ tags }) {
   return tags.length > 0 ? (
@@ -13,4 +14,7 @@ function TagsList({ tags }) {
   ) : null;
 }
 
+TagsList.propTypes = {
+  tags: PropTypes.arrayOf(PropTypes.string)
+};
 export default TagsList;

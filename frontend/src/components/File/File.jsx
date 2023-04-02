@@ -4,18 +4,19 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import modules from "../../modules/quill";
 import TagsList from "../TagList/TagsList";
+import PropTypes from 'prop-types'
 
 function File({
+  id,
+  tags,
   toggle,
   filename,
   setFilename,
-  id,
+  fileIndex,
   content,
   setContent,
-  setData,
   data,
-  tags,
-  fileIndex,
+  setData,
 }) {
   const editFileInServer = async (id, field, value) => {
     const host = "http://localhost:3000";
@@ -70,4 +71,25 @@ function File({
   );
 }
 
+File.propTypes = {
+  toggle: PropTypes.string.isRequired,
+  filename: PropTypes.string.isRequired,
+  setFilename: PropTypes.func.isRequired,
+  setContent: PropTypes.func.isRequired,
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      FileInformation: PropTypes.shape({
+        filename: PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+      }).isRequired,
+      Content: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  setData: PropTypes.func.isRequired,
+  id: PropTypes.number.isRequired,
+  content: PropTypes.string.isRequired,
+  tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+  fileIndex: PropTypes.number.isRequired,
+};
 export default File;

@@ -7,15 +7,14 @@ import "./app.css";
 
 export function App() {
   const [toggle, setToggle] = useState("open");
-  const toggleState = () =>
-    toggle === "open" ? setToggle("close") : setToggle("open");
-
   const [filename, setFilename] = useState("");
   const [data, setData] = useState([]);
   const [id, setId] = useState(null);
   const [tags, setTags] = useState("");
   const [content, setContent] = useState("");
   const [fileIndex, setFileIndex] = useState("");
+
+  const toggleState = () => setToggle((toggle) => (toggle === "open" ? "close" : "open"));
 
   useEffect(() => {
     const savedData = JSON.parse(localStorage.getItem("data")) || {files: []};

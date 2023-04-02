@@ -1,6 +1,7 @@
 import React from "react";
 import "./Welcome.css";
 import noteIcon from "../../assets/note-icon.png";
+import PropTypes from 'prop-types'
 
 function Welcome({ toggle }) {
   return (
@@ -11,5 +12,9 @@ function Welcome({ toggle }) {
     </main>
   );
 }
+
+Welcome.propTypes = {
+  toggle: PropTypes.string.isRequired,
+};
 
 export default Welcome;

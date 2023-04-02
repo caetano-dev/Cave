@@ -1,13 +1,23 @@
 import React from "react";
 import "./SideBar.css";
+import PropTypes from 'prop-types'
 
-function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setContent, setFileIndex }) {
+function SideBar({
+  toggle,
+  toggleState,
+  data,
+  setFilename,
+  setId,
+  setTags,
+  setContent,
+  setFileIndex,
+}) {
   const setVariables = (filename, id, tags, content, index) => {
     setFilename(filename);
     setId(id);
     setTags(tags);
     setContent(content);
-    setFileIndex(index)
+    setFileIndex(index);
   };
 
   return (
@@ -33,7 +43,7 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setCo
                     files.FileInformation.id,
                     files.FileInformation.tags,
                     files.Content,
-                    index,
+                    index
                   )
                 }
               >
@@ -50,4 +60,24 @@ function SideBar({ toggle, toggleState, data, setFilename, setId, setTags, setCo
     </aside>
   );
 }
+
+SideBar.propTypes = {
+  toggle: PropTypes.string.isRequired,
+  toggleState: PropTypes.func.isRequired,
+  data: PropTypes.arrayOf(
+    PropTypes.shape({
+      FileInformation: PropTypes.shape({
+        filename: PropTypes.string.isRequired,
+        id: PropTypes.number.isRequired,
+        tags: PropTypes.arrayOf(PropTypes.string).isRequired,
+      }).isRequired,
+      Content: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  setFilename: PropTypes.func.isRequired,
+  setId: PropTypes.func.isRequired,
+  setTags: PropTypes.func.isRequired,
+  setContent: PropTypes.func.isRequired,
+  setFileIndex: PropTypes.func.isRequired,
+};
 export default SideBar;
