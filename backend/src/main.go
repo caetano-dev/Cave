@@ -13,7 +13,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-
 func main() {
 	var c s.Config
 	flag.StringVar(&c.Database, "database", os.Getenv("DATABASE_NAME"), "database name")
@@ -30,6 +29,7 @@ func main() {
 	http.HandleFunc("/files/show", env.FilesShow)
 	http.HandleFunc("/files/upload", env.FilesUpload)
 	http.HandleFunc("/files/delete", env.FilesDelete)
+	http.HandleFunc("/files/create", env.FilesCreate)
 	http.HandleFunc("/fileEditContent", env.FileEditContent)
 	http.HandleFunc("/fileEditName", env.FileEditName)
 

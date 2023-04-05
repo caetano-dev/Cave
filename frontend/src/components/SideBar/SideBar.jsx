@@ -1,12 +1,15 @@
 import React from "react";
 import "./SideBar.css";
+import CreateFileButton from "../CreateFileButton/CreateFileButton";
 import PropTypes from 'prop-types'
+
 
 function SideBar({
   toggle,
   toggleState,
   data,
   setFilename,
+  setData,
   setId,
   setTags,
   setContent,
@@ -25,6 +28,7 @@ function SideBar({
       {data.length > 0 ? (
         <>
           <div>
+            <CreateFileButton setData={setData} />
             <button
               className={"sideBarButton " + toggle}
               title="Toggle sidebar"

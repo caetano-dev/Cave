@@ -30,8 +30,6 @@ function File({
     };
 
     fetch(url, fetchParamns).catch(console.error);
-    setData(data);
-    localStorage.setItem("data", JSON.stringify(data));
   };
 
   function handleEditFilename(event) {

@@ -104,6 +104,54 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 }
 
 // FilesUpload is the function that uploads a file.
+func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
+
+	if r.Method != http.MethodPost {
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+		return
+	}
+	filename := "New file"
+	tags := ""
+	splitTags := strings.Split(tags, ",")
+	files_path := filepath.Join(".", "files")
+
+	err := os.MkdirAll(files_path, os.ModePerm)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, filename))
+
+	dst, err := os.Create(filesystemPath)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer dst.Close()
+
+	hash := sha256.New()
+	hashString := hex.EncodeToString(hash.Sum(nil))
+
+	f := s.File{
+		Hash:     hashString,
+		Filename: filename,
+		Filepath: filesystemPath,
+		Tags:     splitTags,
+	}
+
+	id, err := database.Insert(env.DB, f)
+	if err != nil {
+		log.Fatal(err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
+}
+
+// FilesUpload is the function that uploads a file.
 func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 

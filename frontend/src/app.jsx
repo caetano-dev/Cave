@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import SideBar from "./components/SideBar/SideBar";
 import File from "./components/File/File";
 import Welcome from "./components/Welcome/Welcome";
+import fetchFiles from "./utils/utils"
 
 import "./app.css";
 
@@ -17,29 +18,7 @@ export function App() {
   const toggleState = () => setToggle((toggle) => (toggle === "open" ? "close" : "open"));
 
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem("data")) || {files: []};
-    console.log(savedData)
-    if (!navigator.onLine) {
-      setData(savedData.files);
-      return;
-    }
-
-    fetch("http://localhost:3000/files")
-      .then((response) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          throw new Error("Server error: " + response.status);
-        }
-      })
-      .then((json) => {
-        setData(json.files);
-        localStorage.setItem("data", JSON.stringify(json));
-      })
-      .catch((error) => {
-        console.error(error);
-        setData(savedData.files);
-      });
+    fetchFiles(setData)
   }, []);
 console.log(data)
 
@@ -49,6 +28,7 @@ console.log(data)
         toggle={toggle}
         toggleState={toggleState}
         data={data}
+        setData={setData}
         setFilename={setFilename}
         setId={setId}
         setTags={setTags}

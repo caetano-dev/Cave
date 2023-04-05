@@ -18,8 +18,9 @@ Run the frontend with `npm run dev`.
 ## To-do (for now):
 
 - Fix the last test function for the database.
+- Write tests for the new functions
 - Fix the sidebar that does not have a scroll.
-- Let user create and delete files.
+- Let user delete files.
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
 - Save content and filename offline.
