@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import "./SideBar.css";
 import CreateFileButton from "../CreateFileButton/CreateFileButton";
+import ToggleButton from "../ToggleButton/ToggleButton";
 import PopUp from "../PopUp/PopUp";
 import PropTypes from 'prop-types'
 import deleteFile from "../../utils/deleteFile"
@@ -24,13 +25,7 @@ function SideBar(props) {
         <>
           <div>
             <CreateFileButton setData={props.setData} />
-            <button
-              className={"sideBarButton " + props.toggle}
-              title="Toggle sidebar"
-              onClick={props.toggleState}
-            >
-              ☰
-            </button>
+            <ToggleButton toggle={props.toggle} toggleState={props.toggleState} />
           </div>
           <ul>
             {props.data.map((files, index) => (
@@ -53,12 +48,12 @@ function SideBar(props) {
               >
                 {selectedFile !== null && (
                   <PopUp
+                  text={"Delete file"}
                     position={popUpPosition}
-                    onDelete={() => {
+                    onClickFunction={() => {
                       const id = props.data[selectedFile].FileInformation.id;
                       deleteFile(id);
                       props.setData([
-                        //NOTE: This can be used when a new file is created, instead of fetching all of them again.
                         ...props.data.slice(0, selectedFile),
                         ...props.data.slice(selectedFile + 1),
                       ]);

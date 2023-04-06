@@ -55,3 +55,6 @@
   display: flex;
   flex-direction: column;
 }
+.createFileButton{
+  border-radius: 0px;
+}
