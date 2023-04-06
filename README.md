@@ -14,9 +14,9 @@ Notion is cool, but it requires internet access. Obsidian is great, but it is pr
 
 The two main technologies we are using for the moment are React and Go. If you have programming knowledge and want to help, open a pull request!
 
-### Running the project
+## Running the project
 
-Install the dependencies:
+### Install the dependencies:
 
 From the backend folder:
 `go mod tidy`
@@ -24,15 +24,18 @@ From the backend folder:
 From the frontend folder:
 `npm install`
 
-Run the backend with `DATABASE_NAME=database.db go run src/main.go` and upload the files with the `index.html` page from the backend folder.
+Run the backend with `DATABASE_NAME=database.db go run src/main.go`.
 Run the frontend with `npm run dev`.
 
-### To-do (for now):
+## Contributing
+
+If you are interested in contributing with this project, fell free to open a pull request or an issue. Don't be afraid to change or refactor the code, because it is a mess (for now).
+### Things to do / Bugs to fix:
 
 - Write tests for the new functions
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
 - Save content and filename offline.
     - content/filename is saved, but when edited offline, the app breaks.
-- Add an emoji picker💅
+- Add an emoji picker 💅
 ---
