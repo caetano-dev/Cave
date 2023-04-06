@@ -6,18 +6,7 @@ import modules from "../../modules/quill";
 import TagsList from "../TagList/TagsList";
 import PropTypes from 'prop-types'
 
-function File({
-  id,
-  tags,
-  toggle,
-  filename,
-  setFilename,
-  fileIndex,
-  content,
-  setContent,
-  data,
-  setData,
-}) {
+function File(props) {
   const editFileInServer = async (id, field, value) => {
     const host = "http://localhost:3000";
     const url =
@@ -34,36 +23,36 @@ function File({
 
   function handleEditFilename(event) {
     const newFilename = event.target.value;
-    setFilename(newFilename);
-    data[fileIndex].FileInformation.filename = newFilename;
-    editFileInServer(id, "filename", newFilename);
+    props.setFilename(newFilename);
+    props.data[props.fileIndex].FileInformation.filename = newFilename;
+    editFileInServer(props.id, "filename", newFilename);
   }
 
   useEffect(() => {
     function handleSaveShortcutKeyDown(event) {
       if (event.ctrlKey && event.key === "s") {
         event.preventDefault();
-        setContent(content);
-        data[fileIndex].Content = content;
-        editFileInServer(id, "content", content);
+        props.setContent(props.content);
+        props.data[props.fileIndex].Content = props.content;
+        editFileInServer(props.id, "content", props.content);
       }
     }
     document.addEventListener("keydown", handleSaveShortcutKeyDown);
     return () => {
       document.removeEventListener("keydown", handleSaveShortcutKeyDown);
     };
-  }, [content]);
+  }, [props.content]);
 
   return (
-    <main className={toggle}>
-      <input onChange={handleEditFilename} className="title" value={filename} />
-      <TagsList tags={tags} />
+    <main className={props.toggle}>
+      <input onChange={handleEditFilename} className="title" value={props.filename} />
+      <TagsList tags={props.tags} />
       <ReactQuill
         className="quill"
         modules={modules}
         theme="snow"
-        value={content}
-        onChange={setContent}
+        value={props.content}
+        onChange={props.setContent}
       />
     </main>
   );

@@ -1,7 +1,7 @@
 import React from "react";
-import fetchFiles from "../../utils/utils"
+import fetchFiles from "../../utils/fetchFiles";
 
-function CreateFileButton({setData}) {
+function CreateFileButton({ setData }) {
   const createFile = async () => {
     const host = "http://localhost:3000";
     const url = `${host}/files/create`;
@@ -11,7 +11,7 @@ function CreateFileButton({setData}) {
     };
 
     fetch(url, requestParamns).catch(console.error);
-    fetchFiles(setData)
+    fetchFiles(setData);
   };
 
   return <button onClick={createFile}>Add file</button>;

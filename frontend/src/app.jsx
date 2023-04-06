@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import SideBar from "./components/SideBar/SideBar";
 import File from "./components/File/File";
 import Welcome from "./components/Welcome/Welcome";
-import fetchFiles from "./utils/utils"
+import fetchFiles from "./utils/fetchFiles";
 
 import "./app.css";
 
@@ -15,42 +15,34 @@ export function App() {
   const [content, setContent] = useState("");
   const [fileIndex, setFileIndex] = useState("");
 
-  const toggleState = () => setToggle((toggle) => (toggle === "open" ? "close" : "open"));
+  const toggleState = () =>
+    setToggle((toggle) => (toggle === "open" ? "close" : "open"));
+  const props = {
+    id: id,
+    setId: setId,
+    toggle: toggle,
+    toggleState: toggleState,
+    data: data,
+    filename: filename,
+    setFilename: setFilename,
+    setData: setData,
+    tags: tags,
+    setTags: setTags,
+    setContent: setContent,
+    content: content,
+    fileIndex: fileIndex,
+    setFileIndex: setFileIndex,
+  };
 
   useEffect(() => {
-    fetchFiles(setData)
+    fetchFiles(setData);
   }, []);
-console.log(data)
+  console.log(data);
 
   return (
     <>
-      <SideBar
-        toggle={toggle}
-        toggleState={toggleState}
-        data={data}
-        setData={setData}
-        setFilename={setFilename}
-        setId={setId}
-        setTags={setTags}
-        setContent={setContent}
-        setFileIndex={setFileIndex}
-      />
-      {id ? (
-        <File
-          toggle={toggle}
-          setFilename={setFilename}
-          filename={filename}
-          id={id}
-          tags={tags}
-          content={content}
-          data={data}
-          setData={setData}
-          setContent={setContent}
-          fileIndex={fileIndex}
-        />
-      ) : (
-        <Welcome toggle={toggle} />
-      )}
+      <SideBar {...props} />
+      {id ? <File {...props} /> : <Welcome toggle={toggle} />}
     </>
   );
 }

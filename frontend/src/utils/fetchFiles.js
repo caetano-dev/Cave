@@ -23,5 +23,4 @@ const fetchFiles = (setData) => {
       setData(savedData.files);
     });
 };
-
-export default fetchFiles
+export default fetchFiles;

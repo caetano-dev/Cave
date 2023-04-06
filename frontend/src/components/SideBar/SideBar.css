@@ -50,3 +50,8 @@
   position: fixed;
   top: 0;
 }
+
+.noFiles{
+  display: flex;
+  flex-direction: column;
+}

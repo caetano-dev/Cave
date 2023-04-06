@@ -1,44 +1,39 @@
-import React from "react";
+import React, {useState} from "react";
 import "./SideBar.css";
 import CreateFileButton from "../CreateFileButton/CreateFileButton";
+import PopUp from "../PopUp/PopUp";
 import PropTypes from 'prop-types'
+import deleteFile from "../../utils/deleteFile"
 
 
-function SideBar({
-  toggle,
-  toggleState,
-  data,
-  setFilename,
-  setData,
-  setId,
-  setTags,
-  setContent,
-  setFileIndex,
-}) {
+function SideBar(props) {
+  const [popUpPosition, setPopUpPosition] = useState({x:0,y:0})
+  const [selectedFile, setSelectedFile] = useState(null);
+
   const setVariables = (filename, id, tags, content, index) => {
-    setFilename(filename);
-    setId(id);
-    setTags(tags);
-    setContent(content);
-    setFileIndex(index);
+    props.setFilename(filename);
+    props.setId(id);
+    props.setTags(tags);
+    props.setContent(content);
+    props.setFileIndex(index);
   };
 
   return (
-    <aside className={"sidebar " + toggle}>
-      {data.length > 0 ? (
+    <aside className={"sidebar " + props.toggle}>
+      {props.data.length > 0 ? (
         <>
           <div>
-            <CreateFileButton setData={setData} />
+            <CreateFileButton setData={props.setData} />
             <button
-              className={"sideBarButton " + toggle}
+              className={"sideBarButton " + props.toggle}
               title="Toggle sidebar"
-              onClick={toggleState}
+              onClick={props.toggleState}
             >
               ☰
             </button>
           </div>
           <ul>
-            {data.map((files, index) => (
+            {props.data.map((files, index) => (
               <li
                 className="file"
                 onClick={() =>
@@ -50,7 +45,28 @@ function SideBar({
                     index
                   )
                 }
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  setSelectedFile(index);
+                  setPopUpPosition({ x: event.clientX, y: event.clientY });
+                }}
               >
+                {selectedFile !== null && (
+                  <PopUp
+                    position={popUpPosition}
+                    onDelete={() => {
+                      const id = props.data[selectedFile].FileInformation.id;
+                      deleteFile(id);
+                      props.setData([
+                        //NOTE: This can be used when a new file is created, instead of fetching all of them again.
+                        ...props.data.slice(0, selectedFile),
+                        ...props.data.slice(selectedFile + 1),
+                      ]);
+                      setSelectedFile(null);
+                    }}
+                  />
+                )}
+
                 <React.Fragment key={files.FileInformation.id}>
                   <p>{files.FileInformation.filename}</p>
                 </React.Fragment>
@@ -59,7 +75,10 @@ function SideBar({
           </ul>
         </>
       ) : (
-        <p style="color:white; margin: 0 0 0 1.5rem">You have no files</p>
+        <div className="noFiles">
+          <CreateFileButton setData={props.setData} />
+          <p style="color:white; margin: 0 0 0 1.5rem">You have no files</p>
+        </div>
       )}
     </aside>
   );
