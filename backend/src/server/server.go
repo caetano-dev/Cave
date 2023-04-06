@@ -112,8 +112,7 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	filename := "New file"
-	tags := ""
-	splitTags := strings.Split(tags, ",")
+	tags := strings.Split("", ",")
 	files_path := filepath.Join(".", "files")
 
 	err := os.MkdirAll(files_path, os.ModePerm)
@@ -138,7 +137,7 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 		Hash:     hashString,
 		Filename: filename,
 		Filepath: filesystemPath,
-		Tags:     splitTags,
+		Tags:     tags,
 	}
 
 	id, err := database.Insert(env.DB, f)
@@ -228,29 +227,26 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-
-	uid := r.FormValue("ID")
-	if uid == "" {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-		return
-	}
-	id, err := strconv.ParseInt(uid, 10, 64)
+	var body s.RequestBody
+	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	id := body.ID
 	file, err := database.GetByID(env.DB, id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	if file.ID == 0 {
 		fmt.Fprintf(w, "file not found")
 		return
 	}
 
-	err = os.Remove(filepath.Join("./files", file.Filename))
+	//err = os.Remove(filepath.Join("./files", file.Filepath))
+	err = os.Remove(file.Filepath)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
