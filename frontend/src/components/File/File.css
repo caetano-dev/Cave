@@ -11,6 +11,9 @@ main.open {
 main.close {
     margin-left: 2.5rem;
 }
+input:hover{
+    cursor:pointer;
+}
 
 .title,
 .content {
