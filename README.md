@@ -35,7 +35,6 @@ If you are interested in contributing with this project, fell free to open a pul
 - Write tests for the new functions
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
-- Save content and filename offline.
-    - content/filename is saved, but when edited offline, the app breaks.
+- Save filename offline.
 - Add an emoji picker 💅
 ---
