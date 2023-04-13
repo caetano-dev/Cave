@@ -32,9 +32,10 @@ Run the frontend with `npm run dev`.
 If you are interested in contributing with this project, fell free to open a pull request or an issue. Don't be afraid to change or refactor the code, because it is a mess (for now).
 ### Things to do / Bugs to fix:
 
-- Write tests for the new functions
+- Improve tags and make them usable
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
-- Save filename offline.
+- Sync files with the server
 - Add an emoji picker 💅
+- Write tests for the new functions
 ---

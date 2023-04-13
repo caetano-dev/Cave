@@ -25,6 +25,7 @@ function File(props) {
     const newFilename = event.target.value;
     props.setFilename(newFilename);
     props.data[props.fileIndex].FileInformation.filename = newFilename;
+    localStorage.setItem("data", JSON.stringify(props.data));
     editFileInServer(props.id, "filename", newFilename);
   }
 
