@@ -36,12 +36,8 @@ export function App() {
 
   useEffect(() => {
     fetchFiles(setData);
-    console.log("data")
-    console.log(data)
     setData(data)
-    //syncFiles(setData);
   }, []);
-  console.log(data);
 
   return (
     <>

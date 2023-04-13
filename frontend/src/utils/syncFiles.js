@@ -1,5 +1,5 @@
 import fetchFiles from "./fetchFiles";
-
+// maybe this file can be deleted.
 const syncFiles = (setData) => {
   if (navigator.online) {
     const savedData = JSON.parse(localStorage.getItem("data")) || { files: [] };

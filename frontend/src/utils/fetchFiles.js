@@ -1,10 +1,7 @@
 async function fetchFiles(setData) {
-  //get data from local storage
   const savedData = JSON.parse(localStorage.getItem("data")) || { files: [] };
 
   if (navigator.onLine) {
-    //if it is online, we need to compare with local storage. if local storage is different, we upload it.
-    //fetch files from server
     await fetch("http://localhost:3000/files")
       .then((response) => {
         if (response.status === 200) {
@@ -15,15 +12,15 @@ async function fetchFiles(setData) {
       })
       .then((json) => {
         //save to data and local storage
+        //TODO: compate with local storage to see if we use it or not. if is it different from local storage, we use local storage, else, we upload
         setData(json.files);
         localStorage.setItem("data", JSON.stringify(json.files)); //similar to data
       })
       .catch((error) => {
-        //if there is an error, use local storage
         console.error(error);
         setData(savedData);
       });
-  } else { //if it's offline, use local storage
+  } else {
     setData(savedData);
   }
 };
