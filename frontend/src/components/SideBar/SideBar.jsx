@@ -58,6 +58,7 @@ function SideBar(props) {
                         ...props.data.slice(selectedFile + 1),
                       ]);
                       setSelectedFile(null);
+                      localStorage.setItem("data", JSON.stringify(props.data));
                     }}
                   />
                 )}

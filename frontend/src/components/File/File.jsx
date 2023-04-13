@@ -34,6 +34,7 @@ function File(props) {
         event.preventDefault();
         props.setContent(props.content);
         props.data[props.fileIndex].Content = props.content;
+        localStorage.setItem("data", JSON.stringify(props.data));
         editFileInServer(props.id, "content", props.content);
       }
     }
