@@ -6,7 +6,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -103,7 +102,7 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
 }
 
-// FilesUpload is the function that uploads a file.
+// FilesCreate is the function that creates a file.
 func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
@@ -131,69 +130,6 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 	defer dst.Close()
 
 	hash := sha256.New()
-	hashString := hex.EncodeToString(hash.Sum(nil))
-
-	f := s.File{
-		Hash:     hashString,
-		Filename: filename,
-		Filepath: filesystemPath,
-		Tags:     tags,
-	}
-
-	id, err := database.Insert(env.DB, f)
-	if err != nil {
-		log.Fatal(err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
-}
-
-// FilesUpload is the function that uploads a file.
-func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
-	var file s.File
-
-	err := json.NewDecoder(r.Body).Decode(&file)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	filename := file.Filename
-	tags := file.Tags
-
-	files_path := filepath.Join(".", "files")
-	err = os.MkdirAll(files_path, os.ModePerm)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
-		return
-	}
-
-	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, filename))
-
-	dst, err := os.Create(filesystemPath)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
-
-	hash := sha256.New()
-	mw := io.MultiWriter(dst, hash, os.Stdout)
-
-	if _, err := io.Copy(mw, r.Body); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	hashString := hex.EncodeToString(hash.Sum(nil))
 
 	f := s.File{
