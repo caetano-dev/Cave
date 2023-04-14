@@ -35,7 +35,7 @@ If you are interested in contributing with this project, fell free to open a pul
 - Improve tags and make them usable
 - Create a search bar where the user can look for files based on the filename and tags.
 - Make it local first.
-- Sync files with the server
+- Sync files with the server (server is not saving files anymore)
 - Add an emoji picker 💅
 - Write tests for the new functions
 ---

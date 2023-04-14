@@ -1,10 +1,12 @@
 package utils
 
 import (
+	"fmt"
 	"os"
-	"path/filepath"
-	"strconv"
+	"path"
 )
+
+var FrontentAddress string = "localhost:5173"
 
 // FileExists is the function that determines if a file already exists with a given name.
 func FileExists(filesystemPath string) bool {
@@ -20,17 +22,27 @@ func UniqueFilesystemPath(filesystemPath string) string {
 		return filesystemPath
 	}
 
-	base := filesystemPath[:len(filesystemPath)-len(filepath.Ext(filesystemPath))] // remove extension
-	ext := filepath.Ext(filesystemPath)
+	dir, filename := path.Split(filesystemPath)
+	ext := path.Ext(filename)
+	base := filename[:len(filename)-len(ext)]
 	i := 1
 
 	for {
-		newfilesystemPath := base + "_" + strconv.Itoa(i) + ext
-		if !FileExists(newfilesystemPath) {
-			return newfilesystemPath
+		newFilename := fmt.Sprintf("%s_%d%s", base, i, ext)
+		newFilepath := path.Join(dir, newFilename)
+		fmt.Println("Checking filepath:", newFilepath)
+		if !FileExists(newFilepath) {
+			return newFilepath
 		}
 		i++
 	}
 }
 
-var FrontentAddress string = "localhost:5173"
+func createTemp() string {
+	dirs := []string{"", "."}
+	for _, dir := range dirs {
+		println(f.Name())
+
+	}
+	return f.Name()
+}

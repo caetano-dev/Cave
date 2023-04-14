@@ -1,25 +1,25 @@
-const uploadFile = async (file) => {
+const uploadFile = (file) => {
   if (navigator.onLine) {
     const host = "http://localhost:3000";
     const url = `${host}/files/create`;
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("filename", file.name);
-    formData.append("tags", ""); // Update with actual tags value
-    const requestParamns = {
+    const options = {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(file),
     };
-    try {
-      const response = await fetch(url, requestParamns);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log("File upload successful:", data);
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
+    fetch(url, options)
+      .then((response) => {
+        if (response.ok) {
+          console.log("upload successful!");
+        } else {
+          console.log("upload failed!");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 };
 

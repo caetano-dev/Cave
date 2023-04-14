@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/drull1000/cave/src/database"
 	s "github.com/drull1000/cave/src/structs"
@@ -110,43 +109,58 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-	filename := "New file"
-	tags := strings.Split("", ",")
-	files_path := filepath.Join(".", "files")
 
-	err := os.MkdirAll(files_path, os.ModePerm)
-	if err != nil {
-		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
+	type uploadFile struct {
+		Filename string   `json:"filename"`
+		Tags     []string `json:"tags"`
+		Content  string   `json:"content"`
+	}
+
+	var uploadedFile uploadFile
+
+	if err := json.NewDecoder(r.Body).Decode(&uploadedFile); err != nil {
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
 	}
 
-	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, filename))
+	if uploadedFile.Filename == "" {
+		uploadedFile.Filename = "untitled"
+	}
+	fmt.Println(uploadedFile.Filename)
 
-	dst, err := os.Create(filesystemPath)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	filesFolder := filepath.Join(".", "files")
+	if err := os.MkdirAll(filesFolder, os.ModePerm); err != nil {
+		http.Error(w, fmt.Sprintf("error creating directory: %s", err), http.StatusInternalServerError)
 		return
 	}
-	defer dst.Close()
+	//TODO:	fix the uniquefilesystempath function
+	file, err := os.CreateTemp(filesFolder, "*.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	//	uniqueFilePath := u.UniqueFilesystemPath(filepath.Join(filesFolder, uploadedFile.Filename))
 
 	hash := sha256.New()
+	hash.Write([]byte(uploadedFile.Content))
 	hashString := hex.EncodeToString(hash.Sum(nil))
 
-	f := s.File{
+	file := s.File{
 		Hash:     hashString,
-		Filename: filename,
-		Filepath: filesystemPath,
-		Tags:     tags,
+		Filename: uploadedFile.Filename,
+		FilePath: //complete here
+		Tags:     uploadedFile.Tags,
 	}
 
-	id, err := database.Insert(env.DB, f)
+	_, err = database.Insert(env.DB, file)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
+	if err := os.WriteFile(uniqueFilePath, []byte(uploadedFile.Content), 0666); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // FilesDelete is the function that deletes a file.
