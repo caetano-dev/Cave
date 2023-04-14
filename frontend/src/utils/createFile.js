@@ -1,7 +1,9 @@
 import fetchFiles from "./fetchFiles";
+import uploadFile from "./uploadFile";
 
 const createFile = async (setData) => {
   const savedData = JSON.parse(localStorage.getItem("data")) || [];
+  console.log(savedData);
   const newFile = {
     FileInformation: {
       id: savedData.length + 1,
@@ -10,28 +12,13 @@ const createFile = async (setData) => {
       created_at: new Date().toISOString(),
       filename: "New file",
       filepath: "files/New file",
-      tags: []
+      tags: [],
     },
-    Content: ""
+    Content: "",
   };
-  savedData.push(newFile)
+  savedData.push(newFile);
   localStorage.setItem("data", JSON.stringify(savedData));
-
-  //upload file (can be a new function)
-  const host = "http://localhost:3000";
-  const url = `${host}/files/create`;
-  const requestParamns = {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      filename: "New file",
-      tags: ""
-    }),
-  };
-  fetch(url, requestParamns).catch(console.error);
-  //end upload file
-
-  //TODO: when file is created, we need to update the local storage, specially offline.
-  fetchFiles(setData)
+  uploadFile(newFile);
+  fetchFiles(setData);
 };
 export default createFile;
