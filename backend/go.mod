@@ -1,4 +1,4 @@
-module github.com/drull1000/notetaking-app
+module github.com/drull1000/cave
 
 go 1.19
 
