@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/drull1000/notetaking-app/src/database"
-	"github.com/drull1000/notetaking-app/src/server"
-	s "github.com/drull1000/notetaking-app/src/structs"
+	"github.com/drull1000/cave/src/database"
+	"github.com/drull1000/cave/src/server"
+	s "github.com/drull1000/cave/src/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
 

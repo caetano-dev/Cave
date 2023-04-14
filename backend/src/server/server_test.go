@@ -10,8 +10,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/drull1000/notetaking-app/src/database"
+	"github.com/drull1000/cave/src/database"
 )
+
 func TestEnv_FilesUpload(t *testing.T) {
 	db, _ := database.InitDB(":memory:")
 	env := &Env{DB: db}

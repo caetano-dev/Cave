@@ -5,7 +5,7 @@ import (
 	"log"
 	"strings"
 
-	s "github.com/drull1000/notetaking-app/src/structs"
+	s "github.com/drull1000/cave/src/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
 

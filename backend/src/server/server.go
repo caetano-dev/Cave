@@ -14,9 +14,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/drull1000/notetaking-app/src/database"
-	s "github.com/drull1000/notetaking-app/src/structs"
-	u "github.com/drull1000/notetaking-app/src/utils"
+	"github.com/drull1000/cave/src/database"
+	s "github.com/drull1000/cave/src/structs"
+	u "github.com/drull1000/cave/src/utils"
 )
 
 // Env struct is the database env
