@@ -1,6 +1,6 @@
 import fetchFiles from "./fetchFiles";
 
-const createFile = async (setData) => {
+const createFile = async (data, setData) => {
   const savedData = JSON.parse(localStorage.getItem("data")) || [];
   const newFile = {
     FileInformation: {
@@ -35,3 +35,4 @@ const createFile = async (setData) => {
   fetchFiles(setData)
 };
 export default createFile;
+

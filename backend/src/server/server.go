@@ -158,23 +158,17 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
 		return
 	}
-	newFilename := r.FormValue("newFilename")
-	tags := r.FormValue("tags")
-	splitTags := strings.Split(tags, ",")
 
-	// Maximum upload of 10 MB files
-	r.ParseMultipartForm(10 << 20)
+	var file s.File
 
-	file, handler, err := r.FormFile("myFile")
+	err := json.NewDecoder(r.Body).Decode(&file)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("error retrieving file: %s", err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
 
-	if newFilename == "" {
-		newFilename = handler.Filename //"raw" name
-	}
+	filename := file.Filename
+	tags := file.Tags
 
 	files_path := filepath.Join(".", "files")
 	err = os.MkdirAll(files_path, os.ModePerm)
@@ -183,7 +177,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, handler.Filename))
+	filesystemPath := u.UniqueFilesystemPath(filepath.Join(files_path, filename))
 
 	dst, err := os.Create(filesystemPath)
 	if err != nil {
@@ -195,7 +189,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	hash := sha256.New()
 	mw := io.MultiWriter(dst, hash, os.Stdout)
 
-	if _, err := io.Copy(mw, file); err != nil {
+	if _, err := io.Copy(mw, r.Body); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -204,9 +198,9 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 
 	f := s.File{
 		Hash:     hashString,
-		Filename: newFilename,
+		Filename: filename,
 		Filepath: filesystemPath,
-		Tags:     splitTags,
+		Tags:     tags,
 	}
 
 	id, err := database.Insert(env.DB, f)
