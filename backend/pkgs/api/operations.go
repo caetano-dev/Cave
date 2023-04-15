@@ -1,8 +1,7 @@
-package server
+package api
 
 import (
 	"crypto/sha256"
-	"database/sql"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -15,26 +14,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/drull1000/cave/src/database"
-	s "github.com/drull1000/cave/src/structs"
-	u "github.com/drull1000/cave/src/utils"
+	s "github.com/drull1000/cave/pkgs/structs"
+	u "github.com/drull1000/cave/pkgs/utils"
+	"github.com/go-chi/chi/v5"
 )
 
-// Env struct is the database env
-type Env struct {
-	DB *sql.DB
-}
-
-// FilesShowAll displays all of the files from the database.
-func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
+// List displays all of the files from the database.
+func (rs *FilesResource) List(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
-	if r.Method != http.MethodGet {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
-	filesDatabase, err := database.GetAll(env.DB)
+	filesDatabase, err := DBClient.GetAll()
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -70,16 +59,11 @@ func (env *Env) FilesShowAll(w http.ResponseWriter, r *http.Request) {
 	w.Write(fileBytes)
 }
 
-// FilesShow displays one file that is chosen by its ID
-func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
+// Get displays one file that is chosen by its ID
+func (rs *FilesResource) Get(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
-	if r.Method != http.MethodGet {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
-	uid := r.FormValue("ID")
+	uid := chi.URLParam(r, "date")
 	if uid == "" {
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 		return
@@ -90,7 +74,7 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := database.GetByID(env.DB, id)
+	file, err := DBClient.GetByID(id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -103,14 +87,10 @@ func (env *Env) FilesShow(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%d, %s, %s, %s, %s\n", file.ID, file.Hash, file.Filename, file.Tags, file.CreatedAt)
 }
 
-// FilesUpload is the function that uploads a file.
-func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
+// FilesCreate is the function that uploads a file.
+func (rs *FilesResource) FilesCreate(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
 	filename := "New file"
 	tags := strings.Split("", ",")
 	files_path := filepath.Join(".", "files")
@@ -140,7 +120,7 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 		Tags:     tags,
 	}
 
-	id, err := database.Insert(env.DB, f)
+	id, err := DBClient.Insert(f)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -150,14 +130,9 @@ func (env *Env) FilesCreate(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
 }
 
-// FilesUpload is the function that uploads a file.
-func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
+// Create is the function that uploads a file.
+func (rs *FilesResource) Create(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
-
-	if r.Method != http.MethodPost {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
 
 	var file s.File
 
@@ -203,7 +178,7 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 		Tags:     tags,
 	}
 
-	id, err := database.Insert(env.DB, f)
+	id, err := DBClient.Insert(f)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -213,14 +188,10 @@ func (env *Env) FilesUpload(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s, %s, %s, %d\n", f.Hash, f.Filename, f.Tags, id)
 }
 
-// FilesDelete is the function that deletes a file.
-func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
+// Delete is the function that deletes a file by id
+func (rs *FilesResource) Delete(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", u.FrontentAddress)
 
-	if r.Method != "DELETE" {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
 	var body s.RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -228,7 +199,7 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	id := body.ID
-	file, err := database.GetByID(env.DB, id)
+	file, err := DBClient.GetByID(id)
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -247,7 +218,7 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = database.DeleteByID(env.DB, id)
+	err = DBClient.DeleteByID(id)
 	if err != nil {
 		log.Fatal(err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -257,7 +228,8 @@ func (env *Env) FilesDelete(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "File %s deleted successfully (id: %d)\n", file.Filename, file.ID)
 }
 
-func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
+// Update ...
+func (rs *FilesResource) Update(w http.ResponseWriter, r *http.Request) {
 	header := w.Header()
 
 	header.Add("Access-Control-Allow-Origin", "*")
@@ -267,11 +239,6 @@ func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 
-	if r.Method != http.MethodPut {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
 	var body s.RequestBody
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
@@ -279,7 +246,7 @@ func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	file, err := database.GetByID(env.DB, body.ID)
+	file, err := DBClient.GetByID(body.ID)
 
 	if err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -296,37 +263,7 @@ func (env *Env) FileEditContent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (env *Env) FileEditName(w http.ResponseWriter, r *http.Request) {
-	header := w.Header()
-
-	header.Add("Access-Control-Allow-Origin", "*")
-	header.Add("Access-Control-Allow-Methods", "DELETE, PUT, POST, GET, OPTIONS")
-	header.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With")
-	header.Add("Content-Type", "application/json")
-
-	w.WriteHeader(http.StatusOK)
-
-	if r.Method != http.MethodPut {
-		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
-		return
-	}
-
-	var body s.RequestBody
-	err := json.NewDecoder(r.Body).Decode(&body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	err = database.UpdateFilename(env.DB, body.ID, body.Value)
-
-	if err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-}
-
-func (env *Env) HealthCheck(w http.ResponseWriter, r *http.Request) {
+// HealthCheck ...
+func (rs *FilesResource) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "OK")
 }

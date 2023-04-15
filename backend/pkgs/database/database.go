@@ -5,17 +5,35 @@ import (
 	"log"
 	"strings"
 
-	s "github.com/drull1000/cave/src/structs"
+	s "github.com/drull1000/cave/pkgs/structs"
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type ClientInterface interface {
+	Ping() error
+	Connect(name string) error
+	Insert(file s.File) (int64, error)
+	UpdateFilename(id int64, filename string) error
+	DeleteByID(id int64) error
+	GetByID(uid int64) (s.FileDatabase, error)
+	GetAll() ([]*s.FileDatabase, error)
+}
+
+type Client struct {
+	DB *sql.DB
+}
+
+func (c *Client) Ping() error {
+	return c.DB.Ping()
+}
+
 // InitDB is the function that initiates the database.
-func InitDB(name string) (*sql.DB, error) {
+func (c *Client) Connect(name string) error {
 	var err error
 
-	db, err := sql.Open("sqlite3", name)
+	c.DB, err = sql.Open("sqlite3", name)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	const createTableStmt = `
@@ -29,18 +47,18 @@ func InitDB(name string) (*sql.DB, error) {
     	created_at TEXT DEFAULT CURRENT_TIMESTAMP
 	);`
 
-	_, err = db.Exec(createTableStmt)
+	_, err = c.DB.Exec(createTableStmt)
 	if err != nil {
 		log.Printf("%q: %s\n", err, createTableStmt)
-		return nil, err
+		return err
 	}
 
-	return db, nil
+	return nil
 }
 
 // Insert filename and tags. This does not upload the file, it just inserts it in the DB.
-func Insert(db *sql.DB, file s.File) (int64, error) {
-	stmt, err := db.Prepare("INSERT INTO files(hash, type, filename, filepath, tags) values(?, ?, ?, ?, ?)")
+func (c *Client) Insert(file s.File) (int64, error) {
+	stmt, err := c.DB.Prepare("INSERT INTO files(hash, type, filename, filepath, tags) values(?, ?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
@@ -62,8 +80,8 @@ func Insert(db *sql.DB, file s.File) (int64, error) {
 }
 
 // UpdateFile is the function that updated the file in the database. It receives the file ID and the file structure
-func UpdateFilename(db *sql.DB, id int64, filename string) error {
-	stmt, err := db.Prepare("UPDATE files SET filename=? WHERE uid=?")
+func (c *Client) UpdateFilename(id int64, filename string) error {
+	stmt, err := c.DB.Prepare("UPDATE files SET filename=? WHERE uid=?")
 	if err != nil {
 		return err
 	}
@@ -77,8 +95,8 @@ func UpdateFilename(db *sql.DB, id int64, filename string) error {
 }
 
 // DeleteByID is the function that deletes the file in the database.
-func DeleteByID(db *sql.DB, id int64) error {
-	stmt, err := db.Prepare("DELETE FROM FILES WHERE uid=?")
+func (c *Client) DeleteByID(id int64) error {
+	stmt, err := c.DB.Prepare("DELETE FROM FILES WHERE uid=?")
 	if err != nil {
 		return err
 	}
@@ -92,8 +110,8 @@ func DeleteByID(db *sql.DB, id int64) error {
 }
 
 // GetByID is the function that gets a file by ID from the database.
-func GetByID(db *sql.DB, uid int64) (s.FileDatabase, error) {
-	row := db.QueryRow("SELECT * FROM files WHERE uid = $1", uid)
+func (c *Client) GetByID(uid int64) (s.FileDatabase, error) {
+	row := c.DB.QueryRow("SELECT * FROM files WHERE uid = $1", uid)
 
 	file := new(s.FileDatabase)
 	var tags string // temporary variable to hold string value of "tags" column
@@ -109,8 +127,8 @@ func GetByID(db *sql.DB, uid int64) (s.FileDatabase, error) {
 }
 
 // GetAll is the function that gets all the files from the database.
-func GetAll(db *sql.DB) ([]*s.FileDatabase, error) {
-	rows, err := db.Query("SELECT * FROM files")
+func (c *Client) GetAll() ([]*s.FileDatabase, error) {
+	rows, err := c.DB.Query("SELECT * FROM files")
 	if err != nil {
 		return nil, err
 	}
